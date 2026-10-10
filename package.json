@@ -1,0 +1,65 @@
+{
+  "name": "bloggers",
+  "productName": "Bloggers",
+  "version": "1.0.0",
+  "description": "Professional AI Content Management & Publishing Studio for Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build:backend": "venv\\Scripts\\pyinstaller.exe --noconfirm --onedir --name backend_server --add-data \"frontend;frontend\" --distpath backend_dist run_backend.py",
+    "build": "npm run build:backend && electron-builder --dir",
+    "dist": "npm run build:backend && electron-builder --win nsis",
+    "pack": "npm run build:backend && electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.bloggers.app",
+    "productName": "Bloggers",
+    "executableName": "Bloggers",
+    "copyright": "Copyright © 2026 Bloggers Studio",
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "backend_dist/backend_server",
+        "to": "backend_server",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "frontend/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bloggers",
+      "artifactName": "Bloggers-Setup-${version}.${ext}"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "frontend/**/*",
+      "backend/**/*",
+      ".env",
+      ".env.example",
+      "requirements.txt"
+    ]
+  },
+  "author": "Bloggers Studio",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "wait-on": "^9.5.1"
+  }
+}
