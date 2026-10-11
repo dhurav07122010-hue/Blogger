@@ -44,6 +44,9 @@ def run_research_for_topic(topic_id: int, db: Session = Depends(get_db)):
     sources = res_data.get("sources", [])
     saved_count = 0
     for s in sources:
+        # Determine verified status based on evidence rather than unconditionally marking true
+        # A source is only verified if it has a valid accessible domain, title, and was independently confirmed
+        verified = bool(s.get("is_verified", False))
         source_rec = ResearchSource(
             topic_id=topic.id,
             title=s.get("title", "Untitled Source"),
@@ -52,7 +55,7 @@ def run_research_for_topic(topic_id: int, db: Session = Depends(get_db)):
             publication_date=s.get("publication_date", ""),
             relevant_facts=s.get("relevant_facts", []),
             notes=s.get("notes", ""),
-            is_verified=True,
+            is_verified=verified,
         )
         db.add(source_rec)
         saved_count += 1

@@ -14,27 +14,30 @@
   - Frameless-ready responsive desktop window with custom branding and icons.
   - Automatically manages and spawns the local Python/FastAPI backend on startup and cleans up gracefully upon exit.
   - Local SQLite persistence with zero telemetry or cloud lock-in.
-- **AI Featured Image Generation (Gemini Nano Banana)**:
-  - Generates 16:9 high-resolution editorial featured images via Gemini's Nano Banana image-generation model (`GEMINI_IMAGE_MODEL`).
-  - Automated image prompt crafting based on article context and editorial themes.
-  - Single-generation safety: no runaway polling or infinite retries.
-  - Automatic fallback banner creation (Pillow) with elegant typography and gradients if offline or in Demo Mode.
-- **Editorial Publication Preview**:
-  - Full reading experience: desktop reading column (`max-width: 760px`) and realistic mobile smartphone container (`375px` viewport with notch).
-  - Clean typography: syntax-highlighted code blocks with 1-click copy buttons, styled tables, editorial blockquotes, reading time calculator, and metadata bylines.
-  - Pre-publish quality checklist verifying title, word count, headings, and featured image presence before publishing.
-- **Complete Article & Topic Management**:
-  - Safe topic creation, research analysis, drafting, editing, and single-click deletion.
-  - Delete articles and topics with confirmation modals and state cleanup.
-- **8-Agent Research & Writing Pipeline**:
-  - Topic Planner, Research Analyst, Article Writer, Fact Checker, Originality Reviewer, SEO Reviewer, Quality Reviewer (0–100 Gate), and Final Editor.
+- **Topic-Driven Web Image Search & Attribution**:
+  - Replaced AI image generation with a multi-query web image search architecture (Wikimedia Commons, Openverse, and verified public domain archives).
+  - Relevance score gate (Strict 70, Balanced 50, Relaxed 35) with universal negative exclusion filters to prevent unrelated stock pictures.
+  - Full author attribution, source URL, licensing info, and custom hero poster upload with size/resolution security gates.
+- **Internet-Powered Topic Discovery**:
+  - Real Google Trends Trending Now RSS (India default + configurable countries) and category-specific Google News search feeds.
+  - Transparent labeling: never confuses offline fallback suggestions with verified live trends.
+  - Evergreen and random topic brainstorms with difficulty estimation and fuzzy deduplication.
+- **Editorial Publication Preview & WYSIWYG Studio**:
+  - Full reading experience: desktop reading column (`max-width: 760px`) and realistic mobile smartphone preview.
+  - Bleach-powered HTML sanitization with strict allowlist tailored for Blogger posts.
+  - Notion-style formatting toolbar with docked AI writing copilot (Regenerate Section, Fact-Check Selection, Polish Flow, Expand, Shorten).
+- **Security & Safety Hardening**:
+  - Restricts CORS to verified local loopback origins (`127.0.0.1`, `localhost`).
+  - Active `.env` file excluded from packaged desktop application distributions.
+  - Validated article status state transitions preventing direct approval bypass.
+  - Image upload size (15MB) and decompression bomb protection (8000x8000 max).
 - **Safe Blogger Integration**:
   - Connects via official Google OAuth 2.0 and Blogger API v3.
-  - Creates **Blogger Drafts** (`isDraft=True`) by default; never silently auto-publishes without explicit user trigger.
+  - Creates **Blogger Drafts** (`isDraft=True`) by default; never silently auto-publishes without explicit user confirmation.
 - **Zero-Credential Demo Mode**:
-  - Test all UI features, drafting, and fallback image generation immediately without API keys.
+  - Test all UI features, topic discovery, drafting, and quality score breakdowns immediately without API keys.
 - **Secret Isolation**:
-  - API keys and OAuth secrets are never exposed to client-side code, logs, or UI elements.
+  - API keys and OAuth secrets are masked in memory and never exposed to client-side code, logs, or UI elements.
 
 ---
 

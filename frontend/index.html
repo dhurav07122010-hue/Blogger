@@ -16,12 +16,12 @@
     <!-- Header / Brand -->
     <div class="sidebar-header">
       <a href="#" class="sidebar-brand" onclick="switchTab('dashboard')">
-        <div class="sidebar-brand-icon">
-          <img src="/static/icon.png" alt="Bloggers Icon">
+        <div class="sidebar-brand-icon sidebar-brand-square">
+          <span>B</span>
         </div>
         <div class="sidebar-brand-text">
           <div class="sidebar-brand-title">Bloggers</div>
-          <div class="sidebar-brand-sub">Studio Edition</div>
+          <div class="sidebar-brand-sub">AI-Powered Blogging Studio</div>
         </div>
       </a>
       <button class="sidebar-toggle-btn" onclick="toggleSidebarCollapse()" title="Toggle Sidebar (Ctrl+B)">
@@ -31,53 +31,35 @@
 
     <!-- Navigation List -->
     <div class="sidebar-nav-container">
-      <div class="nav-section-label">Core</div>
+      <div class="nav-section-label">Navigation</div>
       <a class="nav-item active" data-tab="dashboard" data-title="Dashboard" onclick="switchTab('dashboard')">
         <span class="nav-item-icon">📊</span>
         <span class="nav-item-label">Dashboard</span>
       </a>
-      <a class="nav-item" data-tab="create" data-title="Create Article" onclick="switchTab('create')">
-        <span class="nav-item-icon">✍️</span>
-        <span class="nav-item-label">Create Article</span>
-      </a>
-      <a class="nav-item" data-tab="discovery" data-title="Topic Discovery" onclick="switchTab('discovery')">
+      <a class="nav-item" data-tab="discovery" data-title="Discover Topics" onclick="switchTab('discovery')">
         <span class="nav-item-icon">🔥</span>
-        <span class="nav-item-label">Topic Discovery</span>
+        <span class="nav-item-label">Discover Topics</span>
       </a>
-
-      <div class="nav-section-label">Content</div>
-      <a class="nav-item" data-tab="articles" data-title="All Articles" onclick="switchTab('articles')">
+      <a class="nav-item" data-tab="research" data-title="Research" onclick="switchTab('research')">
+        <span class="nav-item-icon">🔍</span>
+        <span class="nav-item-label">Research</span>
+      </a>
+      <a class="nav-item" data-tab="articles" data-title="Articles" onclick="switchTab('articles')">
         <span class="nav-item-icon">📚</span>
-        <span class="nav-item-label">All Articles</span>
+        <span class="nav-item-label">Articles</span>
         <span class="nav-item-badge" id="nav-count-articles">0</span>
       </a>
-      <a class="nav-item" data-tab="drafts" data-title="Drafts" onclick="switchTab('drafts')">
-        <span class="nav-item-icon">📝</span>
-        <span class="nav-item-label">Drafts</span>
-        <span class="nav-item-badge" id="nav-count-drafts">0</span>
+      <a class="nav-item" data-tab="templates" data-title="Media Library" onclick="switchTab('templates')">
+        <span class="nav-item-icon">🖼️</span>
+        <span class="nav-item-label">Media Library</span>
       </a>
-      <a class="nav-item" data-tab="published" data-title="Published" onclick="switchTab('published')">
-        <span class="nav-item-icon">🚀</span>
-        <span class="nav-item-label">Published</span>
-        <span class="nav-item-badge" id="nav-count-published">0</span>
+      <a class="nav-item" data-tab="history" data-title="Publishing Queue" onclick="switchTab('history')">
+        <span class="nav-item-icon">⏱️</span>
+        <span class="nav-item-label">Publishing Queue</span>
       </a>
-      <a class="nav-item" data-tab="research" data-title="Content Library" onclick="switchTab('research')">
-        <span class="nav-item-icon">🔍</span>
-        <span class="nav-item-label">Content Library</span>
-      </a>
-      <a class="nav-item" data-tab="templates" data-title="Templates" onclick="switchTab('templates')">
-        <span class="nav-item-icon">📑</span>
-        <span class="nav-item-label">Templates</span>
-      </a>
-
-      <div class="nav-section-label">Operations</div>
-      <a class="nav-item" data-tab="history" data-title="Publishing History" onclick="switchTab('history')">
-        <span class="nav-item-icon">📜</span>
-        <span class="nav-item-label">Publishing History</span>
-      </a>
-      <a class="nav-item" data-tab="review" data-title="Quality Gate" onclick="switchTab('review')">
-        <span class="nav-item-icon">🛡️</span>
-        <span class="nav-item-label">Quality Audit</span>
+      <a class="nav-item" data-tab="review" data-title="Blogger Connection" onclick="switchTab('review')">
+        <span class="nav-item-icon">🌐</span>
+        <span class="nav-item-label">Blogger Connection</span>
       </a>
       <a class="nav-item" data-tab="settings" data-title="Settings" onclick="switchTab('settings')">
         <span class="nav-item-icon">⚙️</span>
@@ -87,13 +69,16 @@
 
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
-      <div class="sidebar-model-badge" onclick="switchTab('settings')" style="cursor:pointer;" title="Click to change AI Provider">
-        <span class="status-dot" id="sidebar-status-dot"></span>
-        <span id="sidebar-model-tag">Gemini 3.1 Flash</span>
+      <div class="sidebar-blogger-widget" onclick="switchTab('settings')" title="Google Blogger Connected">
+        <div class="sidebar-blogger-status">
+          <span class="status-dot"></span>
+          <span>● Blogger Connected</span>
+        </div>
+        <div class="sidebar-blogger-email" id="sidebar-blogger-email">dhurav07122010@gmail.com</div>
       </div>
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span>v1.0.0</span>
-        <span style="font-size:10px; color:var(--text-muted);">Studio Pro</span>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding: 2px 4px; font-size:11px;">
+        <span style="color:var(--text-muted);">v1.0.0</span>
+        <span style="color:var(--accent); font-weight:600;">Studio Edition</span>
       </div>
     </div>
   </aside>
@@ -105,21 +90,14 @@
     <!-- Top Bar -->
     <header class="top-bar">
       <div class="top-bar-left">
-        <!-- Breadcrumbs -->
-        <nav class="breadcrumbs" id="app-breadcrumbs">
-          <span>Bloggers</span>
-          <span class="separator">/</span>
-          <span class="current" id="breadcrumb-current">Dashboard</span>
-        </nav>
-
-        <!-- Global Search -->
+        <!-- Global Search (Matching Reference) -->
         <div class="global-search-container">
           <span class="search-icon-inside">🔍</span>
           <input
             type="text"
             id="global-search-input"
             class="global-search-input"
-            placeholder="Search articles, topics, drafts..."
+            placeholder="Search anything..."
             oninput="handleGlobalSearch(this.value)"
           />
           <kbd class="search-kbd-shortcut">Ctrl K</kbd>
@@ -129,7 +107,7 @@
       <div class="top-bar-right">
         <!-- Quick Create Action -->
         <button class="btn btn-primary btn-sm" onclick="switchTab('create')">
-          <span>+ New Article</span>
+          <span>+ Create Article</span>
         </button>
 
         <!-- AI Provider Status Pill -->
@@ -154,15 +132,20 @@
           <span id="blogger-pill-text">ByteBlooming</span>
         </div>
 
+        <!-- Notification Bell (Matching Reference) -->
+        <button class="theme-toggle-btn" title="Notifications" onclick="switchTab('history')">
+          <span>🔔</span>
+        </button>
+
         <!-- Theme Toggle -->
         <button class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Light/Dark Theme">
           <span id="theme-toggle-icon">🌙</span>
         </button>
 
-        <!-- User Profile Pill -->
-        <div class="user-profile-badge" onclick="switchTab('settings')" title="User Profile & Settings">
-          <div class="user-avatar">B</div>
-          <span style="font-size:12px; font-weight:600; color:var(--text-primary);">Editor</span>
+        <!-- User Profile Pill (Avatar 'D' Matching Reference) -->
+        <div class="user-profile-badge" onclick="switchTab('settings')" title="User Profile: Dhurav">
+          <div class="user-avatar" style="background:var(--accent);">D</div>
+          <span style="font-size:12px; font-weight:600; color:var(--text-primary);">Dhurav</span>
         </div>
       </div>
     </header>
@@ -171,219 +154,222 @@
     <main class="content-container">
 
       <!-- =====================================================================
-           TAB 1: DASHBOARD
+           TAB 1: DASHBOARD (MATCHING REFERENCE IMAGE TOP-LEFT PANEL)
            ===================================================================== -->
       <section id="tab-dashboard" class="tab-panel active">
-        <!-- Welcome Hero Banner -->
-        <div class="dashboard-hero">
-          <h1 class="dashboard-hero-title">Welcome to Bloggers Studio</h1>
-          <p class="dashboard-hero-desc">
-            Autonomous, human-quality AI writing partner integrated directly with Google Blogger. Create rich, well-structured articles with topic-matched web hero images and rigorous factual quality audits.
-          </p>
+        <!-- Greeting Header Bar -->
+        <div class="dashboard-greeting-bar">
+          <div>
+            <h1 class="dashboard-greeting-title">Good morning, Dhurav</h1>
+            <p class="dashboard-greeting-subtitle">
+              Create amazing content with AI. Research, write, and publish — all in one place.
+            </p>
+          </div>
+          <button class="btn btn-primary" onclick="switchTab('create')">
+            <span>+ Create Article</span>
+          </button>
+        </div>
 
-          <!-- Quick Title Generator -->
-          <form onsubmit="handleQuickGenerate(event)" class="quick-gen-bar">
+        <!-- Quick Title Generator Bar -->
+        <div class="card" style="margin-bottom:20px; padding:16px 20px;">
+          <form onsubmit="handleQuickGenerate(event)" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
             <input
               type="text"
               id="dashboard-title-input"
-              class="form-control quick-gen-input"
-              placeholder="Enter an article title... e.g. How Autonomous AI Agents Work in 2026"
+              class="form-control"
+              placeholder="Enter an article topic or title... e.g. How Autonomous AI Agents Work in 2026"
+              style="flex:1; min-width:280px;"
               required
             />
             <button type="submit" class="btn btn-primary">
-              <span>🚀 Generate Complete Article</span>
+              <span>🚀 Generate Article</span>
             </button>
             <button type="button" class="btn btn-secondary" onclick="handleSeedDemoArticle()">
-              <span>⚡ Seed Demo Article</span>
+              <span>⚡ Seed Demo</span>
             </button>
           </form>
         </div>
 
-        <!-- Real Stats Grid -->
-        <div class="stats-grid">
-          <div class="stat-card" onclick="switchTab('articles')" style="cursor:pointer;">
-            <div class="stat-header">
-              <span class="stat-label">Total Articles</span>
-              <span class="stat-icon">📚</span>
+        <!-- 2-Column Dashboard Main Layout -->
+        <div class="dashboard-grid-layout">
+          <!-- LEFT COLUMN: Continue Writing & Quick Actions -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <!-- Card 1: Continue Writing -->
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div>
+                  <div class="card-title">Continue Writing</div>
+                  <div class="card-subtitle">Pick up where you left off</div>
+                </div>
+                <button class="toolbar-btn" title="Draft options" onclick="switchTab('articles')">•••</button>
+              </div>
+              <div id="dashboard-continue-writing-list" class="continue-writing-list">
+                <!-- Dynamically populated from recent drafts -->
+                <div style="padding:18px; text-align:center; color:var(--text-secondary); font-size:12.5px;">
+                  Loading recent drafts...
+                </div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-created">0</div>
-            <div class="stat-trend">In database</div>
-          </div>
-          <div class="stat-card" onclick="switchTab('drafts')" style="cursor:pointer;">
-            <div class="stat-header">
-              <span class="stat-label">Active Drafts</span>
-              <span class="stat-icon">📝</span>
-            </div>
-            <div class="stat-value" id="stat-drafts">0</div>
-            <div class="stat-trend">Local & Staged</div>
-          </div>
-          <div class="stat-card" onclick="switchTab('review')" style="cursor:pointer;">
-            <div class="stat-header">
-              <span class="stat-label">Awaiting Approval</span>
-              <span class="stat-icon">⏳</span>
-            </div>
-            <div class="stat-value" id="stat-approval">0</div>
-            <div class="stat-trend">Passed quality check</div>
-          </div>
-          <div class="stat-card" onclick="switchTab('published')" style="cursor:pointer;">
-            <div class="stat-header">
-              <span class="stat-label">Live on Blogger</span>
-              <span class="stat-icon">🚀</span>
-            </div>
-            <div class="stat-value" id="stat-published">0</div>
-            <div class="stat-trend">Published posts</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">Featured Images</span>
-              <span class="stat-icon">🖼️</span>
-            </div>
-            <div class="stat-value" id="stat-images">0</div>
-            <div class="stat-trend">Topic-matched</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">Quality Filtered</span>
-              <span class="stat-icon">🛡️</span>
-            </div>
-            <div class="stat-value" id="stat-failed-quality">0</div>
-            <div class="stat-trend">Blocked sub-threshold</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-header">
-              <span class="stat-label">Estimated Tokens</span>
-              <span class="stat-icon">⚡</span>
-            </div>
-            <div class="stat-value" id="stat-tokens">0</div>
-            <div class="stat-trend">AI consumption</div>
-          </div>
-        </div>
 
-        <!-- Connection Health Card -->
-        <div class="card" style="padding: 16px 20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-            <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:13.5px;">
-              <span>⚡</span>
-              <span>API Integration Health & Security</span>
-            </div>
-            <div style="display:flex; gap:20px; align-items:center; font-size:12.5px; flex-wrap:wrap;">
-              <div>
-                <span style="color:var(--text-secondary);">AI Engine:</span>
-                <span id="conn-gemini" class="status-badge status-APPROVED" style="margin-left:6px;">Connected</span>
+            <!-- Card 2: Quick Actions -->
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header" style="margin-bottom:6px;">
+                <div>
+                  <div class="card-title">Quick Actions</div>
+                  <div class="card-subtitle">Fast shortcuts to get started</div>
+                </div>
               </div>
-              <div>
-                <span style="color:var(--text-secondary);">Image Engine:</span>
-                <span id="conn-banana" class="status-badge status-APPROVED" style="margin-left:6px;">Web Search</span>
+              <div class="quick-actions-grid">
+                <div class="quick-action-tile" onclick="switchTab('discovery')">
+                  <div class="quick-action-tile-icon">🔥</div>
+                  <div class="quick-action-tile-title">Discover Topics</div>
+                  <div class="quick-action-tile-desc">Find trending niches, queries and ideas</div>
+                </div>
+                <div class="quick-action-tile" onclick="switchTab('research')">
+                  <div class="quick-action-tile-icon">🔍</div>
+                  <div class="quick-action-tile-title">Research</div>
+                  <div class="quick-action-tile-desc">Analyze sources, citations and gather facts</div>
+                </div>
+                <div class="quick-action-tile" onclick="switchTab('create'); focusCustomSearchInput();">
+                  <div class="quick-action-tile-icon">🖼️</div>
+                  <div class="quick-action-tile-title">Upload Images</div>
+                  <div class="quick-action-tile-desc">Generate or upload hero banners</div>
+                </div>
+                <div class="quick-action-tile" onclick="switchTab('articles')">
+                  <div class="quick-action-tile-icon">📚</div>
+                  <div class="quick-action-tile-title">View Library</div>
+                  <div class="quick-action-tile-desc">Browse and organize all saved articles</div>
+                </div>
               </div>
-              <div>
-                <span style="color:var(--text-secondary);">Blogger OAuth:</span>
-                <span id="conn-blogger" class="status-badge status-READY_FOR_APPROVAL" style="margin-left:6px;">ByteBlooming</span>
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="switchTab('settings')">Configure Settings ↗</button>
             </div>
           </div>
-        </div>
 
-        <!-- Quick Access Templates Shelf -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><span>📑</span> Quick Article Blueprints</div>
-              <div class="card-subtitle">Select an editorial structure to quickly launch a targeted writing workflow</div>
-            </div>
-            <button class="btn btn-secondary btn-sm" onclick="switchTab('templates')">View All Templates ↗</button>
-          </div>
-          <div class="templates-shelf">
-            <div class="template-card" onclick="applyTemplate('how_to')">
-              <div class="template-icon-title">
-                <span class="template-icon">🛠️</span>
-                <div class="template-title">How-To Guide</div>
+          <!-- RIGHT COLUMN: Recent Articles, Blogger Connection, Publishing Queue -->
+          <div style="display:flex; flex-direction:column; gap:20px;">
+            <!-- Card 1: Recent Articles -->
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header" style="margin-bottom:12px;">
+                <div>
+                  <div class="card-title">Recent Articles</div>
+                  <div class="card-subtitle">Latest drafts & published posts</div>
+                </div>
+                <a class="view-all-link" onclick="switchTab('articles')">View all →</a>
               </div>
-              <div class="template-desc">Step-by-step actionable tutorial with prerequisites, implementation phases, and FAQs.</div>
-              <div class="template-badge">Use Blueprint →</div>
-            </div>
-            <div class="template-card" onclick="applyTemplate('deep_dive')">
-              <div class="template-icon-title">
-                <span class="template-icon">🔬</span>
-                <div class="template-title">Technical Deep Dive</div>
+              <div id="dashboard-recent-articles-list" class="recent-articles-list">
+                <div style="padding:16px; text-align:center; color:var(--text-secondary); font-size:12.5px;">
+                  Loading recent articles...
+                </div>
               </div>
-              <div class="template-desc">Comprehensive architectural breakdown with systems analysis, code concepts, and trade-offs.</div>
-              <div class="template-badge">Use Blueprint →</div>
             </div>
-            <div class="template-card" onclick="applyTemplate('comparison')">
-              <div class="template-icon-title">
-                <span class="template-icon">⚖️</span>
-                <div class="template-title">Product Comparison</div>
+
+            <!-- Card 2: Blogger Connection -->
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header" style="margin-bottom:10px;">
+                <div>
+                  <div class="card-title">Blogger Connection</div>
+                  <div class="card-subtitle">Google Blogger OAuth status</div>
+                </div>
+                <span class="source-status-accessible" id="conn-blogger-badge">● Connected</span>
               </div>
-              <div class="template-desc">Objective side-by-side evaluation with pros/cons, benchmark tables, and clear verdicts.</div>
-              <div class="template-badge">Use Blueprint →</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--bg-surface-elevated); border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+                <div>
+                  <div style="font-size:13px; font-weight:700; color:var(--text-primary);" id="conn-blogger-title">ByteBlooming</div>
+                  <div style="font-size:11.5px; color:var(--text-secondary);" id="dashboard-blogger-email">dhurav07122010@gmail.com</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="switchTab('settings')">Manage</button>
+              </div>
             </div>
-            <div class="template-card" onclick="applyTemplate('trends')">
-              <div class="template-icon-title">
-                <span class="template-icon">📈</span>
-                <div class="template-title">Industry Trends 2026</div>
+
+            <!-- Card 3: Publishing Queue -->
+            <div class="card" style="margin-bottom:0;">
+              <div class="card-header" style="margin-bottom:10px;">
+                <div>
+                  <div class="card-title">Publishing Queue</div>
+                  <div class="card-subtitle">Pending and scheduled posts</div>
+                </div>
+                <a class="view-all-link" onclick="switchTab('history')">View all</a>
               </div>
-              <div class="template-desc">Forward-looking analysis exploring emerging shifts, adoption data, and future implications.</div>
-              <div class="template-badge">Use Blueprint →</div>
+              <div class="queue-empty-box">
+                <div style="font-size:24px; margin-bottom:6px;">⏱️</div>
+                <div style="font-weight:600; font-size:13px; color:var(--text-primary); margin-bottom:2px;">No articles in queue</div>
+                <div style="font-size:11.5px; color:var(--text-secondary);">Scheduled articles ready for publishing will appear here.</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Recent Articles Table on Dashboard -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><span>📝</span> Recent Articles</div>
-              <div class="card-subtitle">Latest drafts, reviews, and published blog posts</div>
-            </div>
-            <div style="display:flex; gap:8px;">
-              <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">Refresh</button>
-              <button class="btn btn-primary btn-sm" onclick="switchTab('create')">+ New Article</button>
-            </div>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Status</th>
-                  <th>Quality Score</th>
-                  <th>Draft / Post</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="dashboard-articles-table">
-                <tr><td colspan="5" style="text-align:center;">Loading recent articles...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <!-- Preserved Collapsible Operational Stats -->
+        <div style="margin-top:24px;">
+          <details class="card" style="cursor:pointer; padding:14px 20px;">
+            <summary style="font-weight:700; font-size:13.5px; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center;">
+              <span>📊 Studio Analytics & Real Pipeline Metrics</span>
+              <span style="font-size:11.5px; color:var(--text-muted); font-weight:normal;">Click to expand</span>
+            </summary>
+            <div style="margin-top:16px;">
+              <div class="stats-grid">
+                <div class="stat-card" onclick="switchTab('articles')" style="cursor:pointer;">
+                  <div class="stat-header"><span class="stat-label">Total Articles</span><span>📚</span></div>
+                  <div class="stat-value" id="stat-created">0</div>
+                  <div class="stat-trend">In database</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('articles')" style="cursor:pointer;">
+                  <div class="stat-header"><span class="stat-label">Active Drafts</span><span>📝</span></div>
+                  <div class="stat-value" id="stat-drafts">0</div>
+                  <div class="stat-trend">Local & Staged</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('review')" style="cursor:pointer;">
+                  <div class="stat-header"><span class="stat-label">Awaiting Approval</span><span>⏳</span></div>
+                  <div class="stat-value" id="stat-approval">0</div>
+                  <div class="stat-trend">Passed quality check</div>
+                </div>
+                <div class="stat-card" onclick="switchTab('articles')" style="cursor:pointer;">
+                  <div class="stat-header"><span class="stat-label">Live on Blogger</span><span>🚀</span></div>
+                  <div class="stat-value" id="stat-published">0</div>
+                  <div class="stat-trend">Published posts</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-header"><span class="stat-label">Featured Images</span><span>🖼️</span></div>
+                  <div class="stat-value" id="stat-images">0</div>
+                  <div class="stat-trend">Topic-matched</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-header"><span class="stat-label">Quality Filtered</span><span>🛡️</span></div>
+                  <div class="stat-value" id="stat-failed-quality">0</div>
+                  <div class="stat-trend">Blocked sub-threshold</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-header"><span class="stat-label">Estimated Tokens</span><span>⚡</span></div>
+                  <div class="stat-value" id="stat-tokens">0</div>
+                  <div class="stat-trend">AI consumption</div>
+                </div>
+              </div>
 
-        <!-- Recent Agent Activity & Token Tracker -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><span>🤖</span> Autonomous Agent Activity Log</div>
-              <div class="card-subtitle">Execution durations, token counts, and sanitized step traces</div>
+              <!-- Connection Status & Runs Table -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div style="font-size:12.5px; color:var(--text-secondary);">
+                  AI Engine: <span id="conn-gemini" class="status-badge status-APPROVED">Connected</span> &bull; 
+                  Image: <span id="conn-banana" class="status-badge status-APPROVED">Web Search</span> &bull; 
+                  Blogger: <span id="conn-blogger" class="status-badge status-READY_FOR_APPROVAL">ByteBlooming</span>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Agent Name</th>
+                      <th>Status</th>
+                      <th>Execution Time</th>
+                      <th>Tokens (Est)</th>
+                      <th>Activity Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recent-runs-table">
+                    <tr><td colspan="5" style="text-align:center;">Loading activity...</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">Refresh</button>
-          </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Agent Name</th>
-                  <th>Status</th>
-                  <th>Execution Time</th>
-                  <th>Tokens (Est)</th>
-                  <th>Activity Notes</th>
-                </tr>
-              </thead>
-              <tbody id="recent-runs-table">
-                <tr><td colspan="5" style="text-align:center;">Loading activity...</td></tr>
-              </tbody>
-            </table>
-          </div>
+          </details>
         </div>
       </section>
 
@@ -617,76 +603,190 @@
             </div>
           </div>
 
-          <!-- SECTION B: WRITING EDITOR SURFACE -->
-          <div id="studio-edit-view" class="writing-canvas-card">
-            <!-- Article Title Input -->
-            <input
-              type="text"
-              id="editor-article-title"
-              class="editor-title-input"
-              placeholder="Untitled Article..."
-              oninput="handleArticleTitleChange(this.value)"
-            />
+          <!-- SECTION B: WRITING EDITOR & INSPECTOR WORKSPACE (2-COLUMN MATCHING REFERENCE) -->
+          <div id="studio-edit-view" class="studio-editor-layout">
+            <!-- LEFT COLUMN: Writing Canvas -->
+            <div class="studio-writing-pane">
+              <div class="writing-canvas-card">
+                <!-- Article Title Input -->
+                <input
+                  type="text"
+                  id="editor-article-title"
+                  class="editor-title-input"
+                  placeholder="Untitled Article..."
+                  oninput="handleArticleTitleChange(this.value)"
+                />
 
-            <!-- Notion-style Formatting Toolbar -->
-            <div class="editor-toolbar">
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('bold')" title="Bold (Ctrl+B)"><strong>B</strong></button>
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('strikeThrough')" title="Strikethrough"><s>S</s></button>
-              
-              <div class="toolbar-divider"></div>
+                <!-- Notion-style Formatting Toolbar -->
+                <div class="editor-toolbar">
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('bold')" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('italic')" title="Italic (Ctrl+I)"><em>I</em></button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('underline')" title="Underline (Ctrl+U)"><u>U</u></button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                  
+                  <div class="toolbar-divider"></div>
 
-              <button type="button" class="toolbar-btn" onclick="execEditorHeading('h2')" title="Heading 2">H2</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorHeading('h3')" title="Heading 3">H3</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('formatBlock', '<p>')" title="Paragraph">¶</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorHeading('h2')" title="Heading 2">H2</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorHeading('h3')" title="Heading 3">H3</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('formatBlock', '<p>')" title="Paragraph">¶</button>
 
-              <div class="toolbar-divider"></div>
+                  <div class="toolbar-divider"></div>
 
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('insertUnorderedList')" title="Bullet List">• List</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('insertOrderedList')" title="Numbered List">1. List</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorBlockquote()" title="Quote">❝ Quote</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorCodeBlock()" title="Code Block">&lt;/&gt;</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorLink()" title="Insert Link">🔗 Link</button>
-              <button type="button" class="toolbar-btn" onclick="execEditorFormat('insertHorizontalRule')" title="Divider">—</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('insertUnorderedList')" title="Bullet List">• List</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('insertOrderedList')" title="Numbered List">1. List</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorBlockquote()" title="Quote">❝ Quote</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorCodeBlock()" title="Code Block">&lt;/&gt;</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorLink()" title="Insert Link">🔗 Link</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorFormat('insertHorizontalRule')" title="Divider">—</button>
 
-              <div class="toolbar-divider"></div>
+                  <div class="toolbar-divider"></div>
 
-              <button type="button" class="toolbar-btn" onclick="execEditorClearFormat()" title="Clear Formatting">✕ Clear</button>
-              <button type="button" class="toolbar-btn" id="btn-toggle-raw-html" onclick="toggleRawHtmlMode()" title="Toggle HTML View">&lt;HTML&gt;</button>
+                  <button type="button" class="toolbar-btn" onclick="execEditorClearFormat()" title="Clear Formatting">✕ Clear</button>
+                  <button type="button" class="toolbar-btn" id="btn-toggle-raw-html" onclick="toggleRawHtmlMode()" title="Toggle HTML View">&lt;HTML&gt;</button>
+                </div>
+
+                <!-- WYSIWYG Editable Document Area -->
+                <div
+                  id="editor-content-area"
+                  class="editor-editable-area"
+                  contenteditable="true"
+                  oninput="handleEditorContentChange()"
+                  onblur="handleEditorBlur()"
+                  placeholder="Start drafting your article here, or use 'Generate Complete Article' above..."
+                ></div>
+
+                <!-- Raw HTML Code Editor (Toggled on demand) -->
+                <textarea
+                  id="editor-raw-html"
+                  class="form-control"
+                  style="display:none; min-height:480px; font-family:monospace; font-size:13px; line-height:1.6; border:none; padding:24px 32px; background:var(--bg-input);"
+                  oninput="handleRawHtmlChange(this.value)"
+                ></textarea>
+
+                <!-- AI Assistant Docked Actions Bar -->
+                <div class="ai-assistant-dock">
+                  <span class="ai-dock-label">✨ AI Copilot:</span>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('improve')">Polish Flow</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('rewrite')">Rewrite Selection</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('regenerate_section')">Regenerate Section</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('fact_check')">Fact-Check Selection</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('expand')">Expand Passage</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('shorten')">Tighten / Condense</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('suggest_titles')">Suggest SEO Titles</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('suggest_keywords')">Suggest Keywords</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('generate_toc')">Insert Table of Contents</button>
+                  <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('meta_description')">Draft Meta Description</button>
+                </div>
+              </div>
             </div>
 
-            <!-- WYSIWYG Editable Document Area -->
-            <div
-              id="editor-content-area"
-              class="editor-editable-area"
-              contenteditable="true"
-              oninput="handleEditorContentChange()"
-              onblur="handleEditorBlur()"
-              placeholder="Start drafting your article here, or use 'Generate Complete Article' above..."
-            ></div>
+            <!-- RIGHT COLUMN: Inspector Panel (Article Settings, Quality Score, SEO, Featured Image) -->
+            <div class="studio-inspector-pane">
+              <!-- Inspector Card 1: Quality Score Gauge -->
+              <div class="studio-inspector-card">
+                <div class="studio-inspector-title">
+                  <span>Quality Score</span>
+                  <span class="source-status-accessible" id="studio-gauge-status-badge">● Passing</span>
+                </div>
+                <div class="score-gauge-container">
+                  <div style="position:relative; width:120px; height:120px; display:flex; align-items:center; justify-content:center;">
+                    <svg class="score-gauge-svg" viewBox="0 0 100 100">
+                      <circle class="score-gauge-bg" cx="50" cy="50" r="40" />
+                      <circle id="studio-gauge-circle" class="score-gauge-fill" cx="50" cy="50" r="40" stroke-dasharray="251.2" stroke-dashoffset="55" />
+                    </svg>
+                    <div class="score-gauge-center">
+                      <div id="studio-gauge-number" class="score-gauge-number">78</div>
+                      <div id="studio-gauge-rating" class="score-gauge-label">Good</div>
+                    </div>
+                  </div>
+                  <div class="score-metrics-row">
+                    <span class="score-metric-chip" id="gauge-chip-accuracy">Accuracy: 88%</span>
+                    <span class="score-metric-chip" id="gauge-chip-readability">Read: 85%</span>
+                    <span class="score-metric-chip" id="gauge-chip-seo">SEO: 90%</span>
+                  </div>
+                </div>
+              </div>
 
-            <!-- Raw HTML Code Editor (Toggled on demand) -->
-            <textarea
-              id="editor-raw-html"
-              class="form-control"
-              style="display:none; min-height:480px; font-family:monospace; font-size:13px; line-height:1.6; border:none; padding:24px 32px; background:var(--bg-input);"
-              oninput="handleRawHtmlChange(this.value)"
-            ></textarea>
+              <!-- Inspector Card 2: SEO Settings -->
+              <div class="studio-inspector-card">
+                <div class="studio-inspector-title">
+                  <span>SEO Settings</span>
+                  <span style="font-size:11px; color:var(--text-muted);">Metadata</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                  <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                      <label class="form-label" style="font-size:11.5px; margin:0;">SEO Title</label>
+                      <span class="char-counter" id="inspector-seo-title-count">0/60</span>
+                    </div>
+                    <input
+                      type="text"
+                      id="studio-seo-title"
+                      class="form-control"
+                      placeholder="Title with target keyword..."
+                      oninput="updateSeoTitleCount(this.value)"
+                    />
+                  </div>
+                  <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                      <label class="form-label" style="font-size:11.5px; margin:0;">Meta Description</label>
+                      <span class="char-counter" id="inspector-meta-desc-count">0/160</span>
+                    </div>
+                    <textarea
+                      id="studio-meta-description"
+                      class="form-control"
+                      rows="3"
+                      placeholder="Brief excerpt for search engines..."
+                      oninput="updateMetaDescCount(this.value)"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">Category / Destination</label>
+                    <select id="studio-category" class="form-control" style="font-size:12.5px;">
+                      <option value="Technology" selected>Technology</option>
+                      <option value="Web Development">Web Development</option>
+                      <option value="AI & Machine Learning">AI & Machine Learning</option>
+                      <option value="Software Engineering">Software Engineering</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label" style="font-size:11.5px; margin-bottom:4px;">Focus Tags (comma separated)</label>
+                    <input
+                      type="text"
+                      id="studio-keywords"
+                      class="form-control"
+                      placeholder="e.g. web, tutorial, frontend"
+                      oninput="handleKeywordsInputChange(this.value)"
+                    />
+                    <div id="studio-tags-container" class="tags-container"></div>
+                  </div>
+                </div>
+              </div>
 
-            <!-- AI Assistant Docked Actions Bar -->
-            <div class="ai-assistant-dock">
-              <span class="ai-dock-label">✨ AI Copilot:</span>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('improve')">Polish Flow</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('rewrite')">Rewrite Selection</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('regenerate_section')">Regenerate Section</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('fact_check')">Fact-Check Selection</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('expand')">Expand Passage</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('shorten')">Tighten / Condense</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('suggest_titles')">Suggest SEO Titles</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('suggest_keywords')">Suggest Keywords</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('generate_toc')">Insert Table of Contents</button>
-              <button type="button" class="ai-action-chip" onclick="handleAIAssistAction('meta_description')">Draft Meta Description</button>
+              <!-- Inspector Card 3: Featured Image Card -->
+              <div class="studio-inspector-card">
+                <div class="studio-inspector-title">
+                  <span>Featured Image</span>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="focusImageSearchCard()">Change</button>
+                </div>
+                <div style="border-radius:var(--radius-md); overflow:hidden; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); margin-bottom:10px;">
+                  <img
+                    id="inspector-hero-thumb"
+                    src="/static/icon.png"
+                    alt="Hero banner"
+                    style="width:100%; height:130px; object-fit:cover; display:block;"
+                    onerror="this.src='/static/icon.png'"
+                  />
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="handleSearchImagesAgain()">
+                    🔍 Search Image
+                  </button>
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="toggleCustomImagePanel(true)">
+                    📤 Custom
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -848,12 +948,32 @@
                     <h3 id="image-active-title" style="font-size:15px; font-weight:700; margin:0 0 8px 0; color:var(--text-primary);"></h3>
                     <div style="display:flex; flex-direction:column; gap:6px; color:var(--text-secondary); margin-bottom:12px;">
                       <div><strong>Source:</strong> <a id="image-active-source-link" href="#" target="_blank" style="color:var(--accent);"></a></div>
-                      <div><strong>Author:</strong> <span id="image-active-author"></span></div>
+                      <div><strong>Original Credit:</strong> <span id="image-active-author"></span></div>
                       <div><strong>License:</strong> <span id="image-active-license" class="badge" style="background:var(--accent-light); color:var(--accent); font-size:11px; padding:2px 8px; border-radius:4px;"></span></div>
                       <div><strong>Relevance Score:</strong> <span id="image-active-score" class="badge" style="background:var(--success); color:#fff; font-size:11px; padding:2px 8px; border-radius:4px;"></span></div>
                     </div>
-                    <div>
-                      <button class="btn btn-danger btn-sm" onclick="handleRemoveFeaturedImage()">Remove Image</button>
+                    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-subtle); background:var(--bg-surface); padding:12px; border-radius:var(--radius-sm);">
+                      <div style="font-weight:700; font-size:12px; margin-bottom:8px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                        <span>✏️</span> Edit Alt Text & Caption (Rendered on Blogger)
+                      </div>
+                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px;">
+                        <div>
+                          <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Alt Text</label>
+                          <input type="text" id="image-active-alt-input" class="form-control" style="font-size:12px;" placeholder="Accessible description for search & screen readers" />
+                        </div>
+                        <div>
+                          <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Author Credit</label>
+                          <input type="text" id="image-active-author-input" class="form-control" style="font-size:12px;" placeholder="Photo credit" />
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                          <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Caption / Attribution Note</label>
+                          <input type="text" id="image-active-caption-input" class="form-control" style="font-size:12px;" placeholder="Caption displayed directly under the image" />
+                        </div>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="saveActiveImageMetadata()">💾 Save Poster Details</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="handleRemoveFeaturedImage()">🗑️ Remove Image</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -968,39 +1088,43 @@
       </section>
 
       <!-- =====================================================================
-           TAB 3: ALL ARTICLES & CONTENT PIPELINE
+           TAB 3: ALL ARTICLES & CONTENT PIPELINE (MATCHING REFERENCE IMAGE)
            ===================================================================== -->
       <section id="tab-articles" class="tab-panel">
         <div class="card">
-          <div class="card-header">
+          <div class="card-header" style="flex-wrap:wrap; gap:14px;">
             <div>
-              <div class="card-title"><span>📚</span> All Articles & Content Pipeline</div>
-              <div class="card-subtitle">Comprehensive management for drafts, revisions, and published Blogger posts</div>
+              <div class="card-title" style="font-size:20px;">Articles</div>
+              <div class="card-subtitle">Manage and organize your content</div>
             </div>
-            <div style="display:flex; gap:10px;">
-              <button class="btn btn-secondary" onclick="handleSeedDemoArticle()">⚡ Seed Demo Article</button>
-              <button class="btn btn-primary" onclick="switchTab('create')">✍️ Create Article</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-secondary btn-sm" onclick="handleSeedDemoArticle()">⚡ Seed Demo</button>
+              <button class="btn btn-primary" onclick="switchTab('create')">+ New Article</button>
             </div>
           </div>
 
-          <!-- Filter & Search Toolbar -->
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+          <!-- Filter & Search Toolbar (Matching Reference) -->
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
-              <button class="btn btn-sm btn-primary filter-tab active" data-filter="ALL" onclick="filterArticlesByStatus('ALL', this)">All Posts</button>
-              <button class="btn btn-sm btn-secondary filter-tab" data-filter="DRAFT" onclick="filterArticlesByStatus('DRAFT', this)">Drafts</button>
-              <button class="btn btn-sm btn-secondary filter-tab" data-filter="READY_FOR_APPROVAL" onclick="filterArticlesByStatus('READY_FOR_APPROVAL', this)">Ready for Approval</button>
+              <button class="btn btn-sm btn-primary filter-tab active" data-filter="ALL" onclick="filterArticlesByStatus('ALL', this)">All</button>
+              <button class="btn btn-sm btn-secondary filter-tab" data-filter="DRAFT" onclick="filterArticlesByStatus('DRAFT', this)">Draft</button>
+              <button class="btn btn-sm btn-secondary filter-tab" data-filter="READY_FOR_APPROVAL" onclick="filterArticlesByStatus('READY_FOR_APPROVAL', this)">In Progress</button>
               <button class="btn btn-sm btn-secondary filter-tab" data-filter="PUBLISHED" onclick="filterArticlesByStatus('PUBLISHED', this)">Published</button>
+              <button class="btn btn-sm btn-secondary filter-tab" data-filter="FAILED" onclick="filterArticlesByStatus('FAILED', this)">Failed</button>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <input
-                type="text"
-                id="articles-search-filter"
-                class="form-control"
-                placeholder="Filter by title..."
-                style="width:240px; font-size:12.5px; padding:6px 12px;"
-                oninput="handleArticleSearchFilter(this.value)"
-              />
-              <select id="articles-sort-select" class="form-control" style="width:160px; font-size:12.5px; padding:6px 10px;" onchange="handleArticleSortChange(this.value)">
+              <div style="position:relative;">
+                <span style="position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--text-muted);">🔍</span>
+                <input
+                  type="text"
+                  id="articles-search-filter"
+                  class="form-control"
+                  placeholder="Search articles..."
+                  style="width:220px; font-size:12.5px; padding:6px 12px 6px 30px; border-radius:var(--radius-full);"
+                  oninput="handleArticleSearchFilter(this.value)"
+                />
+              </div>
+              <select id="articles-sort-select" class="form-control" style="width:150px; font-size:12.5px; padding:6px 10px;" onchange="handleArticleSortChange(this.value)">
                 <option value="updated_desc">Latest Updated</option>
                 <option value="created_desc">Latest Created</option>
                 <option value="score_desc">Highest Score</option>
@@ -1013,11 +1137,11 @@
             <table>
               <thead>
                 <tr>
-                  <th>Article Title</th>
-                  <th>Workflow Status</th>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Last Modified</th>
+                  <th>Destination</th>
                   <th>Quality Score</th>
-                  <th>Revisions</th>
-                  <th>Blogger Sync</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -1094,43 +1218,102 @@
       </section>
 
       <!-- =====================================================================
-           TAB 6: CONTENT LIBRARY (RESEARCH & TOPIC QUEUE)
+           TAB 6: RESEARCH & CITATION ENGINE (MATCHING REFERENCE BOTTOM-LEFT PANEL)
            ===================================================================== -->
       <section id="tab-research" class="tab-panel">
-        <!-- Sub-tabs -->
-        <div style="display:flex; gap:10px; margin-bottom:16px;">
-          <button id="subtab-sources-btn" class="btn btn-primary btn-sm" onclick="switchContentLibraryTab('sources')">
-            🔍 Verified Research Sources & Citations
-          </button>
-          <button id="subtab-topics-btn" class="btn btn-secondary btn-sm" onclick="switchContentLibraryTab('topics')">
-            💡 Topic Queue & Editorial Ideas
-          </button>
+        <!-- Breadcrumb & Header Box (Matching Reference) -->
+        <div style="margin-bottom:16px;">
+          <div class="breadcrumbs" style="margin-bottom:6px;">
+            <span>Research</span>
+            <span class="separator">/</span>
+            <span class="current" id="research-breadcrumb-topic">HTML hacks</span>
+          </div>
+          <h1 id="research-main-title" style="font-size:24px; font-weight:800; color:var(--text-primary); margin-bottom:4px;">
+            HTML hacks
+          </h1>
+          <p id="research-subtitle" style="font-size:13.5px; color:var(--text-secondary); margin:0;">
+            Researching the latest information about this topic...
+          </p>
         </div>
 
-        <!-- Panel 1: Research Sources -->
-        <div id="content-lib-sources-panel" class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><span>🔍</span> Authoritative Research Sources & Citations</div>
-              <div class="card-subtitle">Ground-truth citations and verified data points used by autonomous agents</div>
-            </div>
-            <button class="btn btn-secondary btn-sm" onclick="loadResearch()">Refresh Sources</button>
+        <!-- Research Progress Card (Matching Reference) -->
+        <div class="research-progress-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:600;">
+            <span style="color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+              <span class="status-dot"></span>
+              <span>Research in progress</span>
+            </span>
+            <span style="color:var(--accent); font-weight:700;" id="research-sources-count-badge">3/5 sources found</span>
           </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Source Title</th>
-                  <th>Domain / URL</th>
-                  <th>Key Verified Facts & Notes</th>
-                  <th>Verification</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="sources-table">
-                <tr><td colspan="5" style="text-align:center;">Loading research sources...</td></tr>
-              </tbody>
-            </table>
+          <div class="research-progress-track">
+            <div class="research-progress-bar" id="research-progress-bar" style="width:65%;"></div>
+          </div>
+        </div>
+
+        <!-- 2-Column Split: Sources (Left) vs Synthesis (Right) -->
+        <div class="research-split-layout">
+          <!-- LEFT COLUMN: Verified Sources Cards -->
+          <div style="display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <strong style="font-size:14px; color:var(--text-primary);">Sources</strong>
+              <button class="btn btn-secondary btn-sm" onclick="loadResearch()">Refresh</button>
+            </div>
+
+            <!-- Dynamically populated source cards -->
+            <div id="research-cards-container">
+              <!-- Default sample cards or loaded dynamically -->
+            </div>
+
+            <!-- Detailed Table View Accordion -->
+            <details style="margin-top:12px; font-size:12px;">
+              <summary style="cursor:pointer; color:var(--text-secondary); font-weight:600; padding:6px 0;">
+                Show Full Citations Table View
+              </summary>
+              <div class="table-wrapper" style="margin-top:8px;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Source Title</th>
+                      <th>Domain / URL</th>
+                      <th>Verified Facts</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sources-table">
+                    <tr><td colspan="4" style="text-align:center;">Loading sources...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </div>
+
+          <!-- RIGHT COLUMN: Synthesis & Key Findings -->
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div class="card" style="margin-bottom:0; padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--border-subtle); padding-bottom:10px;">
+                <div style="display:flex; gap:8px;">
+                  <button class="btn btn-sm btn-primary" id="btn-synth-summary" onclick="switchSynthesisTab('summary')">Summary</button>
+                  <button class="btn btn-sm btn-secondary" id="btn-synth-findings" onclick="switchSynthesisTab('findings')">Key Findings</button>
+                </div>
+                <span class="source-status-accessible">● Verified</span>
+              </div>
+
+              <!-- Synthesized Content Box -->
+              <div id="research-synthesis-content" style="font-size:13px; line-height:1.6; color:var(--text-primary); min-height:220px;">
+                <p>HTML remains the bedrock of accessible and performant web applications. Modern semantic elements like <code>&lt;dialog&gt;</code>, popover APIs, and native form validation dramatically reduce JavaScript bundle size while providing built-in keyboard accessibility.</p>
+                <div style="margin-top:14px; padding:12px; background:var(--bg-surface-elevated); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <strong style="color:var(--accent); font-size:12px; display:block; margin-bottom:4px;">💡 Key Takeaway:</strong>
+                  Using native HTML tags over custom div implementations improves screen-reader compatibility by up to 40% and eliminates redundant ARIA attributes.
+                </div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; border-top:1px solid var(--border-subtle); padding-top:14px;">
+                <button class="btn btn-secondary btn-sm" onclick="stopOrResetResearch()">Stop Research</button>
+                <button class="btn btn-primary btn-sm" onclick="generateArticleFromCurrentResearch()">
+                  <span>✍️ Generate Article from Research →</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1433,339 +1616,452 @@
            TAB 10: SETTINGS & INTEGRATIONS
            ===================================================================== -->
       <section id="tab-settings" class="tab-panel">
-        <div class="card" style="max-width: 820px; margin: 0 auto;">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><span>⚙️</span> System Settings & Integrations</div>
-              <div class="card-subtitle">Manage AI providers, Google Blogger authentication, editorial preferences, and theme</div>
-            </div>
+        <div style="margin-bottom:20px;">
+          <h2 style="font-size:22px; font-weight:800; color:var(--text-primary); margin:0 0 4px 0;">Settings</h2>
+          <div style="font-size:13px; color:var(--text-secondary);">Manage system configuration, AI models, Blogger authentication, and editorial defaults</div>
+        </div>
+
+        <div class="settings-split-layout">
+          <!-- Left Navigation List (Matching Reference Image) -->
+          <div class="settings-nav-list">
+            <button type="button" class="settings-nav-btn active" data-settings-pane="blogger" onclick="switchSettingsTab('blogger', this)">
+              <span>🌐</span> Blogger Integration
+            </button>
+            <button type="button" class="settings-nav-btn" data-settings-pane="diagnostics" onclick="switchSettingsTab('diagnostics', this)">
+              <span>🔌</span> Diagnostics & Status
+            </button>
+            <button type="button" class="settings-nav-btn" data-settings-pane="ai" onclick="switchSettingsTab('ai', this)">
+              <span>🤖</span> AI & LLM Providers
+            </button>
+            <button type="button" class="settings-nav-btn" data-settings-pane="research" onclick="switchSettingsTab('research', this)">
+              <span>🔍</span> Research Engine
+            </button>
+            <button type="button" class="settings-nav-btn" data-settings-pane="editorial" onclick="switchSettingsTab('editorial', this)">
+              <span>🖼️</span> SEO & Editorial
+            </button>
+            <button type="button" class="settings-nav-btn" data-settings-pane="appearance" onclick="switchSettingsTab('appearance', this)">
+              <span>🎨</span> Appearance
+            </button>
           </div>
 
-          <!-- ================= SECTION: API STATUS CARDS ================= -->
-          <div style="margin-bottom:24px;">
-            <div style="font-size:14.5px; font-weight:700; color:var(--text-primary); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-              <span>🔌</span> Active Integrations & Connection Diagnostics
-            </div>
-
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:14px;">
-              <!-- 1. Gemini API Card -->
-              <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+          <!-- Right Content Panes -->
+          <div class="settings-content-pane">
+            <!-- PANE 1: BLOGGER INTEGRATION (MATCHING REFERENCE IMAGE PANEL 6) -->
+            <div id="settings-pane-blogger" class="settings-pane" style="display:block;">
+              <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
                   <div>
-                    <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
-                      <span>⚡</span> Google Gemini API
-                    </strong>
-                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Article generation, outlines & SEO</div>
+                    <div class="card-title"><span>🌐</span> Blogger Integration</div>
+                    <div class="card-subtitle">Connect and manage your Google Blogger account for direct draft publishing</div>
                   </div>
-                  <span id="card-status-badge-gemini" class="status-badge status-APPROVED">Connected</span>
                 </div>
-                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-gemini">
-                  Active model: <strong>gemini-3.1-flash-lite</strong>. Fast remote AI inference.
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
-                  <span id="card-tested-gemini">Last tested: Ready</span>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('gemini')">⚡ Test Connection</button>
+
+                <div style="padding:20px;">
+                  <!-- Connected Blog Highlight Card -->
+                  <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-medium); border-radius:var(--radius-md); padding:16px 20px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:14px;">
+                      <div style="width:44px; height:44px; border-radius:var(--radius-md); background:linear-gradient(135deg, #f97316, #ea580c); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800;">
+                        B
+                      </div>
+                      <div>
+                        <div style="font-size:15px; font-weight:700; color:var(--text-primary);">ByteBlooming Tech Blog</div>
+                        <a href="https://byteblooming.blogspot.com" target="_blank" style="font-size:12px; color:var(--accent); text-decoration:none;">https://byteblooming.blogspot.com ↗</a>
+                      </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span class="status-badge status-APPROVED" style="font-size:11.5px; padding:4px 10px;">Connected & Verified</span>
+                    </div>
+                  </div>
+
+                  <!-- Google OAuth Account Status -->
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Google OAuth 2.0 Account</label>
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-surface); padding:12px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                      <div>
+                        <div>OAuth Status: <strong id="settings-oauth-status">Checking...</strong></div>
+                        <div style="font-size:12px; color:var(--text-secondary);" id="settings-oauth-account-email">dhurav07122010@gmail.com</div>
+                      </div>
+                      <button id="btn-oauth-connect" class="btn btn-secondary btn-sm" type="button">Connect Google OAuth</button>
+                    </div>
+                  </div>
+
+                  <!-- Blog Selector & ID -->
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Connected Blogger Blogs</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                      <select id="settings-blog-selector" class="form-control" onchange="handleBlogSelectionChange(this.value)">
+                        <option value="">Loading available blogs...</option>
+                      </select>
+                      <button type="button" class="btn btn-secondary btn-sm" onclick="loadBloggerBlogsList()">🔄 Refresh</button>
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Default Blogger Blog ID</label>
+                    <input type="text" id="settings-blog-id" class="form-control" placeholder="e.g. 7381920491029384721">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Default Post Status</label>
+                    <select class="form-control" id="settings-default-post-status">
+                      <option value="draft" selected>Draft (Review First - Recommended)</option>
+                      <option value="live">Live (Immediate Publication)</option>
+                    </select>
+                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Safety rule: New articles are pushed as staged drafts for human review.</div>
+                  </div>
+
+                  <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+                    <input type="checkbox" id="settings-auto-format-html" checked style="width:18px; height:18px;">
+                    <label for="settings-auto-format-html" style="margin:0; cursor:pointer; font-size:13px; color:var(--text-primary); font-weight:500;">
+                      Auto-Format HTML & Inject Responsive Hero Embed
+                    </label>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <button type="button" class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:var(--danger);" onclick="showToast('OAuth session preserved. You can re-authenticate anytime.', 'info')">Disconnect Blogger</button>
+                    <div style="display:flex; gap:10px;">
+                      <button type="button" class="btn btn-primary btn-sm" onclick="runTestConnection('blogger')">⚡ Test Connection</button>
+                      <button type="button" class="btn btn-primary btn-sm" onclick="handleSaveSettings()">💾 Save</button>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 2. Internet Search Provider Card -->
-              <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <!-- PANE 2: DIAGNOSTICS & ACTIVE INTEGRATIONS -->
+            <div id="settings-pane-diagnostics" class="settings-pane" style="display:none;">
+              <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
                   <div>
-                    <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
-                      <span>🔍</span> Web Search & Research
-                    </strong>
-                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Live fact verification & citation engine</div>
+                    <div class="card-title"><span>🔌</span> Active Integrations & Connection Diagnostics</div>
+                    <div class="card-subtitle">Real-time status check for external APIs, feeds, and local runners</div>
                   </div>
-                  <span id="card-status-badge-search" class="status-badge status-APPROVED">Connected</span>
                 </div>
-                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-search">
-                  Real Google News search feeds & Wikipedia reference engine active.
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
-                  <span id="card-tested-search">Last tested: Ready</span>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('search')">⚡ Test Search</button>
+
+                <div style="padding:20px;">
+                  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:14px; margin-bottom:20px;">
+                    <!-- 1. Gemini API Card -->
+                    <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                          <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                            <span>⚡</span> Google Gemini API
+                          </strong>
+                          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Article generation, outlines & SEO</div>
+                        </div>
+                        <span id="card-status-badge-gemini" class="status-badge status-APPROVED">Connected</span>
+                      </div>
+                      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-gemini">
+                        Active model: <strong>gemini-3.1-flash-lite</strong>. Fast remote AI inference.
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
+                        <span id="card-tested-gemini">Last tested: Ready</span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('gemini')">⚡ Test Connection</button>
+                      </div>
+                    </div>
+
+                    <!-- 2. Internet Search Provider Card -->
+                    <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                          <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                            <span>🔍</span> Web Search & Research
+                          </strong>
+                          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Live fact verification & citation engine</div>
+                        </div>
+                        <span id="card-status-badge-search" class="status-badge status-APPROVED">Connected</span>
+                      </div>
+                      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-search">
+                        Real Google News search feeds & Wikipedia reference engine active.
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
+                        <span id="card-tested-search">Last tested: Ready</span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('search')">⚡ Test Search</button>
+                      </div>
+                    </div>
+
+                    <!-- 3. Google Trends RSS Card -->
+                    <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                          <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                            <span>📈</span> Google Trends Feed
+                          </strong>
+                          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Trending Now & Daily Search Trends</div>
+                        </div>
+                        <span id="card-status-badge-trends" class="status-badge status-APPROVED">Connected</span>
+                      </div>
+                      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-trends">
+                        Live trending queries for region: <strong>India (IN)</strong>.
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
+                        <span id="card-tested-trends">Last tested: Ready</span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('trends')">⚡ Test Trends</button>
+                      </div>
+                    </div>
+
+                    <!-- 4. Google Blogger API Card -->
+                    <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                        <div>
+                          <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                            <span>🌐</span> Blogger API v3
+                          </strong>
+                          <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Draft sync & verified publishing</div>
+                        </div>
+                        <span id="card-status-badge-blogger" class="status-badge status-APPROVED">Connected</span>
+                      </div>
+                      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-blogger">
+                        Authenticated to <strong>ByteBlooming</strong> blog.
+                      </div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
+                        <span id="card-tested-blogger">Last tested: Ready</span>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('blogger')">⚡ Test Blogger</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 3. Google Trends RSS Card -->
-              <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <!-- PANE 3: AI & LLM PROVIDERS -->
+            <div id="settings-pane-ai" class="settings-pane" style="display:none;">
+              <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
                   <div>
-                    <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
-                      <span>📈</span> Google Trends Feed
-                    </strong>
-                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Trending Now & Daily Search Trends</div>
+                    <div class="card-title"><span>🤖</span> AI Generation Mode (Online vs Offline)</div>
+                    <div class="card-subtitle">Choose between Google Gemini Cloud AI and local Ollama inference</div>
                   </div>
-                  <span id="card-status-badge-trends" class="status-badge status-APPROVED">Connected</span>
                 </div>
-                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-trends">
-                  Live trending queries for region: <strong>India (IN)</strong>.
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
-                  <span id="card-tested-trends">Last tested: Ready</span>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('trends')">⚡ Test Trends</button>
+
+                <div style="padding:20px;">
+                  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px;">
+                    <!-- Online AI Option -->
+                    <div id="card-mode-online" style="padding:14px; cursor:pointer; border:2px solid var(--accent); background:var(--bg-surface); border-radius:var(--radius-md); transition:all 0.2s ease;" onclick="selectAIMode('online')">
+                      <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <input type="radio" id="mode-radio-online" name="ai_mode_choice" value="online" checked style="cursor:pointer;" onchange="selectAIMode('online')">
+                        <label for="mode-radio-online" style="margin:0; font-weight:700; cursor:pointer; font-size:13px; color:var(--text-primary);">Online AI (Google Gemini)</label>
+                      </div>
+                      <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
+                        Uses Google Gemini Cloud API. Fast, high-reasoning, requires internet.
+                      </div>
+                    </div>
+
+                    <!-- Offline AI Option -->
+                    <div id="card-mode-offline" style="padding:14px; cursor:pointer; border:1px solid var(--border-subtle); background:var(--bg-surface); border-radius:var(--radius-md); transition:all 0.2s ease;" onclick="selectAIMode('offline')">
+                      <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                        <input type="radio" id="mode-radio-offline" name="ai_mode_choice" value="offline" style="cursor:pointer;" onchange="selectAIMode('offline')">
+                        <label for="mode-radio-offline" style="margin:0; font-weight:700; cursor:pointer; font-size:13px; color:var(--text-primary);">Offline AI (Ollama Local)</label>
+                      </div>
+                      <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
+                        Uses local Ollama instance on your machine without external API calls.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Group: Online AI Settings -->
+                  <div id="settings-group-online" style="border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <div class="form-group" style="margin-bottom:16px;">
+                      <label class="form-label">Gemini API Key</label>
+                      <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="password" id="input-gemini-key" class="form-control" placeholder="Paste new Gemini API key to update..." style="flex:1;" />
+                        <span id="settings-gemini-key-status" class="badge" style="background:var(--success-bg); color:var(--success); font-size:12px; padding:6px 10px; border-radius:var(--radius-sm);">Checking...</span>
+                      </div>
+                      <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+                        Keys are stored securely in local app configuration and never exposed.
+                      </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                      <label class="form-label">Active Gemini Model</label>
+                      <select id="settings-gemini-model" class="form-control">
+                        <option value="gemini-3.1-flash-lite" selected>gemini-3.1-flash-lite (Fast & Lightweight - Recommended)</option>
+                        <option value="gemini-3.8-flash">gemini-3.8-flash (Latest Gemini 3.8 Flash)</option>
+                        <option value="gemini-3.5-flash">gemini-3.5-flash (Standard Flash)</option>
+                        <option value="gemini-2.5-pro">gemini-2.5-pro (High Reasoning)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Group: Offline Ollama Settings -->
+                  <div id="settings-group-offline" style="display:none; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <div class="form-group" style="margin-bottom:14px;">
+                      <label class="form-label">Ollama Server URL</label>
+                      <div style="display:flex; gap:8px;">
+                        <input type="text" id="settings-ollama-url" class="form-control" placeholder="http://localhost:11434" value="http://localhost:11434" style="flex:1;" />
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="checkOllamaConnection()">⚡ Test Connection</button>
+                      </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:14px;">
+                      <label class="form-label">Selected Local Model</label>
+                      <div style="display:flex; gap:8px;">
+                        <select id="settings-ollama-model-select" class="form-control" style="flex:1;" onchange="handleOllamaModelSelectChange(this)">
+                          <option value="llama3.2">llama3.2</option>
+                        </select>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="refreshOllamaModels()">🔄 Refresh Models</button>
+                      </div>
+                      <div id="ollama-custom-model-box" style="margin-top:6px; display:none;">
+                        <input type="text" id="settings-ollama-model-custom" class="form-control" placeholder="Enter model name (e.g. mistral or qwen2.5)" />
+                      </div>
+                    </div>
+
+                    <div id="ollama-status-box" style="padding:12px 14px; border-radius:var(--radius-sm); background:var(--bg-surface); border:1px solid var(--border-subtle); font-size:12px;">
+                      <div id="ollama-status-text" style="color:var(--text-secondary);">Click 'Test Connection' to check Ollama status.</div>
+                    </div>
+                  </div>
+
+                  <div style="text-align:right; margin-top:20px; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="handleSaveSettings()">💾 Save AI Settings</button>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <!-- 4. Google Blogger API Card -->
-              <div class="card" style="margin:0; padding:16px; border:1px solid var(--border-medium); background:var(--bg-surface-elevated);">
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <!-- PANE 4: RESEARCH ENGINE -->
+            <div id="settings-pane-research" class="settings-pane" style="display:none;">
+              <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
                   <div>
-                    <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
-                      <span>🌐</span> Blogger API v3
-                    </strong>
-                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:2px;">Draft sync & verified publishing</div>
+                    <div class="card-title"><span>🔍</span> Internet Search & Research Provider</div>
+                    <div class="card-subtitle">Configure search APIs and Google Trends discovery region</div>
                   </div>
-                  <span id="card-status-badge-blogger" class="status-badge status-APPROVED">Connected</span>
                 </div>
-                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;" id="card-msg-blogger">
-                  Authenticated to <strong>ByteBlooming</strong> blog.
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:10px;">
-                  <span id="card-tested-blogger">Last tested: Ready</span>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="runTestConnection('blogger')">⚡ Test Blogger</button>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- ================= SECTION 1: APPEARANCE & THEME ================= -->
-          <div style="margin-bottom:24px; padding:18px; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:1px solid var(--border-subtle);">
-            <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-              <span>🎨</span> Appearance & Desktop Interface
-            </strong>
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-              <div>
-                <div style="font-weight:600; font-size:13px; color:var(--text-primary);">Color Theme</div>
-                <div style="font-size:12px; color:var(--text-secondary);">Toggle between sleek dark and clean light desktop themes.</div>
-              </div>
-              <div style="display:flex; gap:8px;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeDirect('dark')">🌙 Dark Theme</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="setThemeDirect('light')">☀️ Light Theme</button>
-              </div>
-            </div>
-          </div>
+                <div style="padding:20px;">
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Active Research Provider</label>
+                    <select id="settings-search-provider" class="form-control" onchange="handleSearchProviderChange(this.value)">
+                      <option value="auto" selected>Auto (Public Web Feeds & Wikipedia - Free Tier / Ready)</option>
+                      <option value="serpapi">SerpApi (Google Search Engine API - Requires Key)</option>
+                      <option value="tavily">Tavily (AI Research Engine API - Requires Key)</option>
+                    </select>
+                  </div>
 
-          <!-- ================= SECTION 2: AI GENERATION MODE ================= -->
-          <div style="margin-bottom:24px; padding:20px; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:2px solid var(--accent);">
-            <strong style="font-size:15px; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-              <span>🤖</span> AI Generation Mode (Online vs Offline)
-            </strong>
-            <div style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px;">
-              Configure whether Bloggers writes articles using Online Cloud AI (Google Gemini) or Offline Local AI (Ollama).
-            </div>
+                  <div id="settings-box-serpapi" class="form-group" style="margin-bottom:16px; display:none;">
+                    <label class="form-label">SerpApi API Key</label>
+                    <input type="password" id="input-serpapi-key" class="form-control" placeholder="Paste SerpApi key to update..." />
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Available from <a href="https://serpapi.com" target="_blank" style="color:var(--accent);">serpapi.com</a>. Free tier includes 100 searches/mo.</div>
+                  </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px;">
-              <!-- Online AI Option -->
-              <div id="card-mode-online" style="padding:14px; cursor:pointer; border:2px solid var(--accent); background:var(--bg-surface); border-radius:var(--radius-md); transition:all 0.2s ease;" onclick="selectAIMode('online')">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                  <input type="radio" id="mode-radio-online" name="ai_mode_choice" value="online" checked style="cursor:pointer;" onchange="selectAIMode('online')">
-                  <label for="mode-radio-online" style="margin:0; font-weight:700; cursor:pointer; font-size:13px; color:var(--text-primary);">Online AI (Default)</label>
-                </div>
-                <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
-                  Uses Google Gemini Cloud API. Requires working internet connection.
-                </div>
-              </div>
+                  <div id="settings-box-tavily" class="form-group" style="margin-bottom:16px; display:none;">
+                    <label class="form-label">Tavily API Key</label>
+                    <input type="password" id="input-tavily-key" class="form-control" placeholder="Paste Tavily key to update..." />
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Available from <a href="https://tavily.com" target="_blank" style="color:var(--accent);">tavily.com</a>. Free tier includes 1,000 credits/mo.</div>
+                  </div>
 
-              <!-- Offline AI (Ollama) Option -->
-              <div id="card-mode-offline" style="padding:14px; cursor:pointer; border:1px solid var(--border-subtle); background:var(--bg-surface); border-radius:var(--radius-md); transition:all 0.2s ease;" onclick="selectAIMode('offline')">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                  <input type="radio" id="mode-radio-offline" name="ai_mode_choice" value="offline" style="cursor:pointer;" onchange="selectAIMode('offline')">
-                  <label for="mode-radio-offline" style="margin:0; font-weight:700; cursor:pointer; font-size:13px; color:var(--text-primary);">Offline AI (Ollama)</label>
-                </div>
-                <div style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
-                  Uses local Ollama instance. Requires Ollama installed and running locally.
+                  <div class="form-group" style="margin-bottom:20px;">
+                    <label class="form-label">Google Trends Region / Country Code</label>
+                    <select id="settings-trends-geo" class="form-control">
+                      <option value="IN" selected>IN — India (Default)</option>
+                      <option value="US">US — United States</option>
+                      <option value="GB">GB — United Kingdom</option>
+                      <option value="CA">CA — Canada</option>
+                      <option value="AU">AU — Australia</option>
+                      <option value="SG">SG — Singapore</option>
+                    </select>
+                  </div>
+
+                  <div style="text-align:right; border-top:1px solid var(--border-subtle); padding-top:16px;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="handleSaveSettings()">💾 Save Research Settings</button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Group: Online AI Settings -->
-            <div id="settings-group-online" style="border-top:1px solid var(--border-subtle); padding-top:14px;">
-              <div class="form-group" style="margin-bottom:14px;">
-                <label class="form-label">Gemini API Key</label>
-                <div style="display:flex; gap:10px; align-items:center;">
-                  <input type="password" id="input-gemini-key" class="form-control" placeholder="Paste new Gemini API key to update..." style="flex:1;" />
-                  <span id="settings-gemini-key-status" class="badge" style="background:var(--success-bg); color:var(--success); font-size:12px; padding:6px 10px; border-radius:var(--radius-sm);">Checking...</span>
+            <!-- PANE 5: EDITORIAL & SEO DEFAULTS -->
+            <div id="settings-pane-editorial" class="settings-pane" style="display:none;">
+              <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title"><span>🖼️</span> Image Search & Editorial Defaults</div>
+                    <div class="card-subtitle">Set quality gating thresholds, hero image behavior, and publishing safety rules</div>
+                  </div>
                 </div>
-                <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
-                  Get a key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent);">Google AI Studio</a>. Keys are never logged or exposed.
+
+                <div style="padding:20px;">
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Featured Image Source</label>
+                    <select id="settings-image-source" class="form-control">
+                      <option value="web" selected>Web Image Search (Topic-driven relevance search)</option>
+                      <option value="disabled">Disabled (Do not attach images)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                    <input type="checkbox" id="settings-image-auto-select" checked style="width:18px; height:18px;">
+                    <label for="settings-image-auto-select" style="margin:0; cursor:pointer; font-size:13px;">
+                      Automatic Image Selection (Auto-select highest-scoring candidate if score passes gate)
+                    </label>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Minimum Relevance Gate</label>
+                    <select id="settings-image-min-relevance" class="form-control">
+                      <option value="strict" selected>Strict (Threshold: 70 — Prevents unrelated images)</option>
+                      <option value="balanced">Balanced (Threshold: 50 — Moderate match)</option>
+                      <option value="relaxed">Relaxed (Threshold: 35 — Broad match)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom:16px;">
+                    <label class="form-label">Quality Gate Threshold (<span id="threshold-display">85/100</span>)</label>
+                    <input type="range" id="settings-threshold" min="60" max="95" value="85" style="width:100%;">
+                    <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Articles scoring below this threshold cannot be pushed to Blogger.</div>
+                  </div>
+
+                  <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <input type="checkbox" id="settings-demo-mode" style="width:18px; height:18px;">
+                    <label for="settings-demo-mode" style="margin:0; cursor:pointer; font-size:13px;">
+                      Enable Demo Mode (Simulates responses without using live API tokens)
+                    </label>
+                  </div>
+
+                  <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                    <input type="checkbox" id="settings-auto-publish" style="width:18px; height:18px;">
+                    <label for="settings-auto-publish" style="margin:0; cursor:pointer; font-size:13px; color:var(--warning);">
+                      AUTO_PUBLISH (Safety rule: strictly disabled by default; creates drafts instead)
+                    </label>
+                  </div>
+
+                  <!-- Validation Notices -->
+                  <div style="padding-top:14px; border-top:1px solid var(--border-subtle); margin-bottom:16px;">
+                    <strong style="font-size:12.5px; color:var(--text-secondary);">Startup Validation Notices:</strong>
+                    <ul id="settings-warnings" style="margin-top:6px; padding-left:20px; font-size:12.5px; color:var(--text-muted);"></ul>
+                  </div>
+
+                  <div style="text-align:right;">
+                    <button class="btn btn-primary btn-lg" onclick="handleSaveSettings()">💾 Save Configuration</button>
+                  </div>
                 </div>
               </div>
-
-              <div class="form-group" style="margin-bottom:0;">
-                <label class="form-label">Active Gemini Model</label>
-                <select id="settings-gemini-model" class="form-control">
-                  <option value="gemini-3.1-flash-lite" selected>gemini-3.1-flash-lite (Fast & Lightweight - Recommended)</option>
-                  <option value="gemini-3.8-flash">gemini-3.8-flash (Latest Gemini 3.8 Flash)</option>
-                  <option value="gemini-3.5-flash">gemini-3.5-flash (Standard Flash)</option>
-                  <option value="gemini-2.5-pro">gemini-2.5-pro (High Reasoning)</option>
-                </select>
-              </div>
             </div>
 
-            <!-- Group: Offline Ollama Settings -->
-            <div id="settings-group-offline" style="display:none; border-top:1px solid var(--border-subtle); padding-top:14px;">
-              <div class="form-group" style="margin-bottom:12px;">
-                <label class="form-label">Ollama Server URL</label>
-                <div style="display:flex; gap:8px;">
-                  <input type="text" id="settings-ollama-url" class="form-control" placeholder="http://localhost:11434" value="http://localhost:11434" style="flex:1;" />
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="checkOllamaConnection()">⚡ Test Connection</button>
+            <!-- PANE 6: APPEARANCE -->
+            <div id="settings-pane-appearance" class="settings-pane" style="display:none;">
+              <div class="card" style="margin-bottom:20px;">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title"><span>🎨</span> Appearance & Theme</div>
+                    <div class="card-subtitle">Choose between royal blue dark and light desktop themes</div>
+                  </div>
+                </div>
+
+                <div style="padding:20px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div>
+                      <div style="font-weight:700; font-size:14px; color:var(--text-primary);">Theme Mode</div>
+                      <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Switch between sleek dark and clean light workspace styling.</div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                      <button type="button" class="btn btn-secondary" onclick="setThemeDirect('dark')">🌙 Dark Theme</button>
+                      <button type="button" class="btn btn-secondary" onclick="setThemeDirect('light')">☀️ Light Theme</button>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div class="form-group" style="margin-bottom:12px;">
-                <label class="form-label">Selected Local Model</label>
-                <div style="display:flex; gap:8px;">
-                  <select id="settings-ollama-model-select" class="form-control" style="flex:1;" onchange="handleOllamaModelSelectChange(this)">
-                    <option value="llama3.2">llama3.2</option>
-                  </select>
-                  <button type="button" class="btn btn-secondary btn-sm" onclick="refreshOllamaModels()">🔄 Refresh Models</button>
-                </div>
-                <div id="ollama-custom-model-box" style="margin-top:6px; display:none;">
-                  <input type="text" id="settings-ollama-model-custom" class="form-control" placeholder="Enter model name (e.g. mistral or qwen2.5)" />
-                </div>
-              </div>
-
-              <div id="ollama-status-box" style="padding:12px 14px; border-radius:var(--radius-sm); background:var(--bg-surface); border:1px solid var(--border-subtle); font-size:12px;">
-                <div id="ollama-status-text" style="color:var(--text-secondary);">Click 'Test Connection' to check Ollama status.</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ================= SECTION 3: BLOGGER OAUTH & BLOGS ================= -->
-          <div style="margin-bottom:24px; padding:18px; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:1px solid var(--border-subtle);">
-            <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-              <span>🌐</span> Google Blogger Integration
-            </strong>
-
-            <div class="form-group">
-              <label class="form-label">Google OAuth 2.0 Connection</label>
-              <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg-surface); padding:12px 16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                <div>
-                  <div>Status: <strong id="settings-oauth-status">Checking...</strong></div>
-                  <div style="font-size:12px; color:var(--text-secondary);">Used to create Blogger drafts with isDraft=True</div>
-                </div>
-                <button id="btn-oauth-connect" class="btn btn-secondary btn-sm">Connect Google OAuth</button>
-              </div>
             </div>
 
-            <div class="form-group" style="margin-bottom:8px;">
-              <label class="form-label">Connected Blogger Blogs</label>
-              <div style="display:flex; gap:10px; align-items:center;">
-                <select id="settings-blog-selector" class="form-control" onchange="handleBlogSelectionChange(this.value)">
-                  <option value="">Loading available blogs...</option>
-                </select>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="loadBloggerBlogsList()">🔄 Refresh</button>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Default Blogger Blog ID</label>
-              <input type="text" id="settings-blog-id" class="form-control" placeholder="e.g. 1234567890123456789">
-            </div>
-          </div>
-
-          <!-- ================= SECTION: RESEARCH & SEARCH ENGINE ================= -->
-          <div style="margin-bottom:24px; padding:18px; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:1px solid var(--border-subtle);">
-            <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-              <span>🔍</span> Internet Search & Research Provider
-            </strong>
-
-            <div class="form-group" style="margin-bottom:12px;">
-              <label class="form-label">Active Research Provider</label>
-              <select id="settings-search-provider" class="form-control" onchange="handleSearchProviderChange(this.value)">
-                <option value="auto" selected>Auto (Public Web Feeds & Wikipedia - Free Tier / Ready)</option>
-                <option value="serpapi">SerpApi (Google Search Engine API - Requires Key)</option>
-                <option value="tavily">Tavily (AI Research Engine API - Requires Key)</option>
-              </select>
-            </div>
-
-            <div id="settings-box-serpapi" class="form-group" style="margin-bottom:12px; display:none;">
-              <label class="form-label">SerpApi API Key</label>
-              <input type="password" id="input-serpapi-key" class="form-control" placeholder="Paste SerpApi key to update..." />
-              <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Available from <a href="https://serpapi.com" target="_blank" style="color:var(--accent);">serpapi.com</a>. Free tier includes 100 searches/mo.</div>
-            </div>
-
-            <div id="settings-box-tavily" class="form-group" style="margin-bottom:12px; display:none;">
-              <label class="form-label">Tavily API Key</label>
-              <input type="password" id="input-tavily-key" class="form-control" placeholder="Paste Tavily key to update..." />
-              <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">Available from <a href="https://tavily.com" target="_blank" style="color:var(--accent);">tavily.com</a>. Free tier includes 1,000 credits/mo.</div>
-            </div>
-
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Google Trends Region / Country Code</label>
-              <select id="settings-trends-geo" class="form-control">
-                <option value="IN" selected>IN — India (Default)</option>
-                <option value="US">US — United States</option>
-                <option value="GB">GB — United Kingdom</option>
-                <option value="CA">CA — Canada</option>
-                <option value="AU">AU — Australia</option>
-                <option value="SG">SG — Singapore</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- ================= SECTION 4: EDITORIAL & IMAGE DEFAULTS ================= -->
-          <div style="margin-bottom:24px; padding:18px; border-radius:var(--radius-md); background:var(--bg-surface-elevated); border:1px solid var(--border-subtle);">
-            <strong style="font-size:14px; color:var(--text-primary); display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-              <span>🖼️</span> Image Search & Editorial Defaults
-            </strong>
-
-            <div class="form-group" style="margin-bottom:12px;">
-              <label class="form-label">Featured Image Source</label>
-              <select id="settings-image-source" class="form-control">
-                <option value="web" selected>Web Image Search (Topic-driven relevance search)</option>
-                <option value="disabled">Disabled (Do not attach images)</option>
-              </select>
-            </div>
-
-            <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-              <input type="checkbox" id="settings-image-auto-select" checked style="width:18px; height:18px;">
-              <label for="settings-image-auto-select" style="margin:0; cursor:pointer; font-size:13px;">
-                Automatic Image Selection (Auto-select highest-scoring candidate if score passes gate)
-              </label>
-            </div>
-
-            <div class="form-group" style="margin-bottom:14px;">
-              <label class="form-label">Minimum Relevance Gate</label>
-              <select id="settings-image-min-relevance" class="form-control">
-                <option value="strict" selected>Strict (Threshold: 70 — Prevents unrelated images)</option>
-                <option value="balanced">Balanced (Threshold: 50 — Moderate match)</option>
-                <option value="relaxed">Relaxed (Threshold: 35 — Broad match)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Quality Gate Threshold (<span id="threshold-display">85/100</span>)</label>
-              <input type="range" id="settings-threshold" min="60" max="95" value="85" style="width:100%;">
-              <div style="font-size:11.5px; color:var(--text-secondary); margin-top:4px;">Articles scoring below this threshold cannot be pushed to Blogger.</div>
-            </div>
-
-            <div class="form-group" style="display:flex; align-items:center; gap:10px; margin-top:14px;">
-              <input type="checkbox" id="settings-demo-mode" style="width:18px; height:18px;">
-              <label for="settings-demo-mode" style="margin:0; cursor:pointer;">
-                Enable Demo Mode (Simulates responses without using live API tokens)
-              </label>
-            </div>
-
-            <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-              <input type="checkbox" id="settings-auto-publish" style="width:18px; height:18px;">
-              <label for="settings-auto-publish" style="margin:0; cursor:pointer; color:var(--warning);">
-                AUTO_PUBLISH (Safety rule: strictly disabled by default; creates drafts instead)
-              </label>
-            </div>
-          </div>
-
-          <!-- Validation Notices -->
-          <div style="padding-top:12px; border-top:1px solid var(--border-subtle); margin-bottom:16px;">
-            <strong style="font-size:12.5px; color:var(--text-secondary);">Startup Validation Notices:</strong>
-            <ul id="settings-warnings" style="margin-top:6px; padding-left:20px; font-size:12.5px; color:var(--text-muted);"></ul>
-          </div>
-
-          <!-- Save Button -->
-          <div style="text-align:right;">
-            <button class="btn btn-primary btn-lg" onclick="handleSaveSettings()">💾 Save Configuration</button>
           </div>
         </div>
       </section>

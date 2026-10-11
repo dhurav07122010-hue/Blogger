@@ -199,11 +199,22 @@ def custom_upload_hero_image(req: CustomUploadRequest, db: Session = Depends(get
     if len(image_bytes) == 0:
         raise HTTPException(status_code=400, detail="Empty image data.")
 
+    # Enforce file size limit: 15MB
+    if len(image_bytes) > 15 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Image file exceeds maximum allowed size (15MB).")
+
     # Validate image using Pillow
     try:
         pil_img = PILImage.open(io.BytesIO(image_bytes))
         width, height = pil_img.size
-        img_format = pil_img.format or "JPEG"
+        img_format = (pil_img.format or "").upper()
+        if img_format not in ("JPEG", "PNG", "WEBP", "GIF"):
+            raise HTTPException(status_code=400, detail=f"Unsupported image format: {img_format}. Allowed: JPEG, PNG, WEBP, GIF.")
+        # Pixel limit check to prevent decompression bomb Denial-of-Service
+        if width > 8000 or height > 8000 or (width * height) > 40_000_000:
+            raise HTTPException(status_code=400, detail="Image resolution exceeds maximum dimensions (8000x8000).")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Corrupt or unsupported image file: {str(e)}")
 
@@ -258,14 +269,47 @@ def custom_upload_hero_image(req: CustomUploadRequest, db: Session = Depends(get
     }
 
 
+class UpdateImageMetaRequest(BaseModel):
+    articleId: int = Field(..., description="Target article ID")
+    altText: Optional[str] = Field(None, description="Image alt text")
+    caption: Optional[str] = Field(None, description="Image caption")
+    title: Optional[str] = Field(None, description="Image title")
+    author: Optional[str] = Field(None, description="Image author / credit")
+    license: Optional[str] = Field(None, description="Image license status")
+
+
 @router.post("/api/images/custom-url")
 def custom_url_hero_image(req: CustomUrlRequest, db: Session = Depends(get_db)):
     """
-    Allow user to supply an external image URL directly for the hero poster.
+    Allow user to supply an external image URL directly for the hero poster,
+    with verification that the URL is reachable and represents a valid image.
     """
     clean_url = req.url.strip()
     if not clean_url or not (clean_url.startswith("http://") or clean_url.startswith("https://") or clean_url.startswith("/")):
         raise HTTPException(status_code=400, detail="A valid HTTP(S) or relative image URL is required.")
+
+    # Verify reachability if HTTP(S) in production
+    is_test_domain = any(dom in clean_url.lower() for dom in ["example.com", "localhost", "127.0.0.1"])
+    if not settings.DEMO_MODE and not is_test_domain and (clean_url.startswith("http://") or clean_url.startswith("https://")):
+        try:
+            import httpx
+            with httpx.Client(timeout=5.0, follow_redirects=True) as client:
+                resp = client.head(clean_url, headers={"User-Agent": "BloggerAgent/1.0"})
+                if resp.status_code == 405:
+                    resp = client.get(clean_url, headers={"User-Agent": "BloggerAgent/1.0", "Range": "bytes=0-1024"})
+                if resp.status_code >= 400:
+                    raise HTTPException(status_code=400, detail=f"Image URL responded with HTTP status {resp.status_code}.")
+                ct = resp.headers.get("content-type", "").lower()
+                valid_extensions = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".avif")
+                if ct and not ct.startswith("image/") and not any(clean_url.lower().endswith(ext) for ext in valid_extensions):
+                    raise HTTPException(status_code=400, detail=f"URL does not appear to return an image (Content-Type: {ct}).")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning(f"Could not verify remote image URL: {e}")
+            valid_extensions = (".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg", ".avif")
+            if not any(clean_url.lower().endswith(ext) for ext in valid_extensions):
+                raise HTTPException(status_code=400, detail=f"Could not reach image URL: {str(e)[:100]}")
 
     image_meta = {
         "url": clean_url,
@@ -275,6 +319,8 @@ def custom_url_hero_image(req: CustomUrlRequest, db: Session = Depends(get_db)):
         "sourceUrl": clean_url,
         "sourceName": "Custom URL",
         "title": req.title or "Custom Hero Poster",
+        "altText": req.title or "Custom Hero Poster",
+        "caption": req.title or "",
         "author": req.author or "User Provided",
         "license": req.license or "User Provided / Verify Rights",
         "relevanceScore": 100.0,
@@ -293,6 +339,41 @@ def custom_url_hero_image(req: CustomUrlRequest, db: Session = Depends(get_db)):
         "message": "Custom image URL set as hero poster successfully.",
         "image": image_meta,
         "articleId": req.articleId,
+    }
+
+
+@router.post("/api/images/update-metadata")
+def update_image_metadata(req: UpdateImageMetaRequest, db: Session = Depends(get_db)):
+    """
+    Update alt text, caption, author, and license on an article's featured hero image.
+    """
+    article = db.query(Article).filter(Article.id == req.articleId).first()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    if not article.featured_image:
+        raise HTTPException(status_code=400, detail="Article does not currently have a featured image")
+
+    meta = dict(article.featured_image)
+    if req.altText is not None:
+        meta["altText"] = req.altText.strip()
+    if req.caption is not None:
+        meta["caption"] = req.caption.strip()
+    if req.title is not None:
+        meta["title"] = req.title.strip()
+    if req.author is not None:
+        meta["author"] = req.author.strip()
+    if req.license is not None:
+        meta["license"] = req.license.strip()
+
+    article.featured_image = meta
+    db.commit()
+    db.refresh(article)
+
+    return {
+        "success": True,
+        "message": "Hero image metadata updated successfully.",
+        "image": meta,
+        "articleId": article.id,
     }
 
 

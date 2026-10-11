@@ -10,10 +10,12 @@ Supports:
 """
 
 import os
+import re
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+import bleach
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
@@ -38,14 +40,27 @@ def markdown_to_blogger_html(md_text: str) -> str:
         return ""
     import re
 
-    # Sanitize dangerous tags/attributes from input
-    sanitized = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", md_text, flags=re.IGNORECASE)
+    # 1. Unescape accidental backslash escapes before HTML tags (e.g. \<h2 -> <h2, \</p\> -> </p>, \<code -> <code)
+    cleaned = re.sub(r"\\<(/?[a-zA-Z][a-zA-Z0-9-]*\b[^>]*?)\\?>", r"<\1>", md_text)
+    # Also clean literal &lt;h2&gt; or escaped heading tags if generated mistakenly
+    cleaned = re.sub(r"\\&lt;(/?[a-zA-Z][a-zA-Z0-9-]*\b[^>]*?)\\?&gt;", r"<\1>", cleaned)
+
+    # 2. Sanitize dangerous tags/attributes from input early
+    sanitized = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", cleaned, flags=re.IGNORECASE)
     sanitized = re.sub(r"on\w+\s*=\s*[\"'][^\"']*[\"']", "", sanitized, flags=re.IGNORECASE)
     sanitized = re.sub(r"javascript:\s*", "", sanitized, flags=re.IGNORECASE)
 
-    # If the text is already rich HTML (e.g. edited in WYSIWYG)
-    if "<p>" in sanitized or "<div>" in sanitized or "<h2" in sanitized or "<h3" in sanitized:
-        return sanitized.strip()
+    # 3. Check if content is exclusively full HTML (starts with html/doctype or every block is already an HTML tag and has no markdown headings/lists)
+    has_md_elements = bool(
+        re.search(r"^#{1,6}\s+", sanitized, flags=re.MULTILINE)
+        or re.search(r"^\s*[-*]\s+", sanitized, flags=re.MULTILINE)
+        or re.search(r"\*\*[^*]+\*\*", sanitized)
+        or re.search(r"```[a-zA-Z0-9_-]*\n", sanitized)
+        or re.search(r"\[.+?\]\(.+?\)", sanitized)
+    )
+
+    if not has_md_elements and ("<p>" in sanitized or "<p " in sanitized) and ("<h1" in sanitized or "<h2" in sanitized or "<h3" in sanitized):
+        return sanitize_blogger_html(sanitized.strip())
 
     md_text = sanitized
 
@@ -143,7 +158,7 @@ def markdown_to_blogger_html(md_text: str) -> str:
             formatted.append(p_clean)
         elif p_clean.startswith("__TABLE_BLOCK_"):
             formatted.append(p_clean)
-        elif p_clean.startswith(("<h1", "<h2", "<h3", "<ul>", "<ol", "<div", "<blockquote", "<table")):
+        elif p_clean.startswith(("<h1", "<h2", "<h3", "<ul>", "<ol", "<div", "<figure", "<figcaption", "<blockquote", "<table")):
             formatted.append(p_clean)
         elif p_clean.startswith(("- ", "* ")):
             items = [f'<li style="margin-bottom: 6px;">{line[2:].strip()}</li>' for line in p_clean.split("\n") if line.strip().startswith(("-", "*"))]
@@ -157,7 +172,59 @@ def markdown_to_blogger_html(md_text: str) -> str:
         result = result.replace(f"__CODE_BLOCK_{idx}__", cb)
     for idx, tb in enumerate(table_blocks):
         result = result.replace(f"__TABLE_BLOCK_{idx}__", tb)
-    return result
+
+    return sanitize_blogger_html(result)
+
+
+def sanitize_blogger_html(html_content: str) -> str:
+    """
+    Sanitize HTML output using bleach with an allowlist tailored for Blogger posts.
+    Allows rich text, headings, code blocks, tables, images, figure/figcaption, and blockquotes with styles.
+    Strips scripts, iframes, objects, forms, and event handlers.
+    """
+    if not html_content:
+        return ""
+
+    allowed_tags = [
+        "a", "abbr", "acronym", "b", "blockquote", "code", "em", "i", "li", "ol",
+        "strong", "ul", "p", "br", "hr", "h1", "h2", "h3", "h4", "h5", "h6",
+        "pre", "table", "thead", "tbody", "tr", "th", "td", "img", "div", "span",
+        "figure", "figcaption", "sub", "sup", "del", "u", "s",
+    ]
+
+    allowed_attributes = {
+        "*": ["style", "class", "id", "title"],
+        "a": ["href", "title", "target", "rel"],
+        "img": ["src", "alt", "title", "width", "height", "loading"],
+        "table": ["border", "cellpadding", "cellspacing"],
+        "td": ["colspan", "rowspan", "align", "valign"],
+        "th": ["colspan", "rowspan", "align", "valign"],
+    }
+
+    allowed_protocols = ["http", "https", "mailto", "data"]
+
+    try:
+        import bleach
+        # First completely strip script, style, and iframe tags along with their inner text
+        pre_stripped = re.sub(r"<(script|style|iframe)\b[^<]*(?:(?!<\/\1>)<[^<]*)*<\/\1>", "", html_content, flags=re.IGNORECASE)
+        pre_stripped = re.sub(r"on\w+\s*=\s*[\"'][^\"']*[\"']", "", pre_stripped, flags=re.IGNORECASE)
+        pre_stripped = re.sub(r"javascript:\s*", "", pre_stripped, flags=re.IGNORECASE)
+
+        cleaned = bleach.clean(
+            pre_stripped,
+            tags=allowed_tags,
+            attributes=allowed_attributes,
+            protocols=allowed_protocols,
+            strip=True,
+        )
+        return cleaned.strip()
+    except Exception:
+        # Fallback to basic regex stripping if bleach fails
+        clean = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", html_content, flags=re.IGNORECASE)
+        clean = re.sub(r"on\w+\s*=\s*[\"'][^\"']*[\"']", "", clean, flags=re.IGNORECASE)
+        clean = re.sub(r"javascript:\s*", "", clean, flags=re.IGNORECASE)
+        return clean.strip()
+
 
 
 class BloggerService:

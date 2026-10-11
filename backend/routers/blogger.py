@@ -109,22 +109,29 @@ def create_draft(req: CreateBloggerDraftRequest, db: Session = Depends(get_db)):
     content_to_send = article.content
     if article.featured_image:
         feat = article.featured_image
-        img_url = feat.get("url") or feat.get("imageUrl") or feat.get("image")
-        if img_url:
-            alt_text = feat.get("title") or feat.get("altText") or f"Featured image for {article.title}"
-            author = feat.get("author") or ""
-            license_info = feat.get("license") or "License unknown — verify before commercial/public use."
-            source_name = feat.get("sourceName") or "Web"
+        img_url = (feat.get("url") or feat.get("imageUrl") or feat.get("image") or "").strip()
+        # Validate URL scheme to reject unsafe schemes like javascript:
+        if img_url and (img_url.startswith("http://") or img_url.startswith("https://") or img_url.startswith("/static/")):
+            import html as html_lib
+            safe_img_url = html_lib.escape(img_url, quote=True)
+            alt_text = html_lib.escape(feat.get("title") or feat.get("altText") or f"Featured image for {article.title}", quote=True)
+            author = html_lib.escape(feat.get("author") or "")
+            license_info = html_lib.escape(feat.get("license") or "License unknown — verify before commercial/public use.")
+            source_name = html_lib.escape(feat.get("sourceName") or "Web")
             caption_items = []
             if author and author != "Unknown":
                 caption_items.append(f"Photo: {author}")
             caption_items.append(f"Source: {source_name}")
             caption_items.append(f"License: {license_info}")
-            caption_str = " • ".join(caption_items)
+            custom_caption = (feat.get("caption") or "").strip()
+            if custom_caption:
+                caption_str = html_lib.escape(custom_caption)
+            else:
+                caption_str = " • ".join(caption_items)
 
             img_banner = (
                 f'\n<div class="separator" style="clear: both; text-align: center; margin: 24px 0;">\n'
-                f'  <img src="{img_url}" alt="{alt_text}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); display: inline-block;" loading="lazy" />\n'
+                f'  <img src="{safe_img_url}" alt="{alt_text}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); display: inline-block;" loading="lazy" />\n'
                 f'  <p style="font-size: 12px; color: #64748b; font-style: italic; margin-top: 6px; text-align: center;">{caption_str}</p>\n'
                 f'</div>\n\n'
             )

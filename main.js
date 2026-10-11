@@ -292,6 +292,31 @@ ipcMain.handle('get-app-version', () => app.getVersion());
 ipcMain.handle('check-backend-health', async () => {
   return new Promise((resolve) => checkBackendAlive(resolve));
 });
+ipcMain.handle('restart-backend', async () => {
+  console.log('[DESKTOP] Explicit restart-backend invoked from frontend.');
+  if (pythonProcess) {
+    try {
+      pythonProcess.kill();
+    } catch (_) {}
+    pythonProcess = null;
+  }
+  startPythonBackend();
+  return new Promise((resolve) => {
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      checkBackendAlive((alive) => {
+        if (alive) {
+          clearInterval(interval);
+          resolve({ success: true, message: 'Backend restarted successfully.' });
+        } else if (attempts >= 40) {
+          clearInterval(interval);
+          resolve({ success: false, message: `Backend restart timed out: ${lastBackendError || 'check logs'}` });
+        }
+      });
+    }, 400);
+  });
+});
 
 ipcMain.on('window-minimize', () => {
   if (mainWindow) mainWindow.minimize();

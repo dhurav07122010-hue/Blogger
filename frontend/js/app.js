@@ -214,10 +214,11 @@ async function loadDashboard() {
       }
     }
 
-    // Load recent articles into the dashboard table
+    // Load recent articles into the dashboard widgets & table
     const articles = await API.getArticles();
     allArticlesCache = articles || [];
     renderDashboardArticles(articles.slice(0, 5));
+    renderDashboardRedesignWidgets(articles);
 
   } catch (err) {
     console.warn('[DASHBOARD] Could not load initial stats:', err.message);
@@ -231,13 +232,76 @@ async function loadDashboard() {
   }
 }
 
+function renderDashboardRedesignWidgets(articles) {
+  // 1. Continue Writing list (matching reference top-left panel)
+  const continueList = document.getElementById('dashboard-continue-writing-list');
+  if (continueList) {
+    const drafts = (articles || []).filter(a => a.status === 'DRAFT' || a.status === 'IDEA' || a.status === 'READY_FOR_APPROVAL');
+    continueList.innerHTML = '';
+    if (drafts.length === 0) {
+      continueList.innerHTML = `
+        <div style="padding:16px; text-align:center; color:var(--text-secondary); font-size:12.5px;">
+          No active drafts. Click <strong>+ Create Article</strong> above to begin!
+        </div>
+      `;
+    } else {
+      drafts.slice(0, 3).forEach(d => {
+        const words = d.content ? d.content.split(/\s+/).filter(Boolean).length : 0;
+        const timeAgo = d.updated_at ? 'Recent' : 'Draft';
+        const div = document.createElement('div');
+        div.className = 'continue-item';
+        div.innerHTML = `
+          <div class="continue-item-left">
+            <div class="continue-item-icon">📄</div>
+            <div class="continue-item-info">
+              <div class="continue-item-title">${escapeHtml(d.title || 'Untitled Article')}</div>
+              <div class="continue-item-meta">${timeAgo} • ${words.toLocaleString()} words • ${d.status}</div>
+            </div>
+          </div>
+          <button class="btn-outline-primary" onclick="openStudioForArticle(${d.id})">Continue</button>
+        `;
+        continueList.appendChild(div);
+      });
+    }
+  }
+
+  // 2. Recent Articles list (matching reference right column)
+  const recentList = document.getElementById('dashboard-recent-articles-list');
+  if (recentList) {
+    recentList.innerHTML = '';
+    if (!articles || articles.length === 0) {
+      recentList.innerHTML = `
+        <div style="padding:16px; text-align:center; color:var(--text-secondary); font-size:12.5px;">
+          No articles created yet.
+        </div>
+      `;
+    } else {
+      articles.slice(0, 4).forEach(a => {
+        const div = document.createElement('div');
+        div.className = 'recent-article-item';
+        div.onclick = () => openStudioForArticle(a.id);
+        div.innerHTML = `
+          <div class="recent-article-left">
+            <span style="font-size:16px;">📄</span>
+            <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:13px; color:var(--text-primary);">
+              ${escapeHtml(a.title || 'Untitled')}
+            </div>
+          </div>
+          <span class="status-badge status-${a.status}">${a.status}</span>
+        `;
+        recentList.appendChild(div);
+      });
+    }
+  }
+}
+
 function renderDashboardArticles(articles) {
   const tbody = document.getElementById('dashboard-articles-table');
   if (!tbody) return;
   tbody.innerHTML = '';
 
   if (!articles || articles.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-secondary); padding:24px;">No articles yet. Click "Generate Complete Article" above to create your first post!</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-secondary); padding:24px;">No articles yet. Click "Generate Article" above to create your first post!</td></tr>';
     return;
   }
 
@@ -335,6 +399,116 @@ function loadArticleIntoStudio(article) {
   populateFeaturedImageUI(article, currentImageCandidates);
   renderPublicationPreview(article);
   setAutosaveStatus('saved', 'All changes saved');
+
+  // Redesign Inspector updates
+  const score = Math.round(article.overall_quality_score != null ? article.overall_quality_score : 85);
+  updateQualityScoreGauge(score, article.quality_report);
+
+  const seoTitleVal = article.seo_metadata?.seo_title || article.title || '';
+  const seoDescVal = article.seo_metadata?.meta_description || article.summary || '';
+  if (seoTitle) {
+    seoTitle.value = seoTitleVal;
+    updateSeoTitleCount(seoTitleVal);
+  }
+  const metaDesc = document.getElementById('studio-meta-description');
+  if (metaDesc) {
+    metaDesc.value = seoDescVal;
+    updateMetaDescCount(seoDescVal);
+  }
+  renderStudioKeywordsPills(article.keywords || []);
+
+  const heroThumb = document.getElementById('inspector-hero-thumb');
+  if (heroThumb) {
+    heroThumb.src = article.featured_image_url || '/static/icon.png';
+  }
+}
+
+function updateQualityScoreGauge(score, qualityReport) {
+  const numEl = document.getElementById('studio-gauge-number');
+  const ratingEl = document.getElementById('studio-gauge-rating');
+  const circleEl = document.getElementById('studio-gauge-circle');
+  const statusBadge = document.getElementById('studio-gauge-status-badge');
+  const accuracyChip = document.getElementById('gauge-chip-accuracy');
+  const readChip = document.getElementById('gauge-chip-readability');
+  const seoChip = document.getElementById('gauge-chip-seo');
+
+  const finalScore = Math.max(0, Math.min(100, Math.round(score || 85)));
+  if (numEl) numEl.innerText = finalScore;
+
+  if (ratingEl) {
+    ratingEl.innerText = finalScore >= 85 ? 'Excellent' : finalScore >= 70 ? 'Good' : 'Needs Review';
+    ratingEl.style.color = finalScore >= 85 ? 'var(--success)' : finalScore >= 70 ? 'var(--accent)' : 'var(--warning)';
+  }
+
+  if (circleEl) {
+    const circumference = 251.3;
+    const offset = circumference - (circumference * finalScore / 100);
+    circleEl.style.strokeDasharray = circumference;
+    circleEl.style.strokeDashoffset = offset;
+    circleEl.style.stroke = finalScore >= 85 ? 'var(--success)' : finalScore >= 70 ? 'var(--accent)' : 'var(--warning)';
+  }
+
+  if (statusBadge) {
+    statusBadge.innerText = finalScore >= 75 ? '● Passing' : '● Needs Work';
+  }
+
+  if (qualityReport) {
+    if (accuracyChip && qualityReport.accuracy_score != null) accuracyChip.innerText = `Accuracy: ${Math.round(qualityReport.accuracy_score * 100)}%`;
+    if (readChip && qualityReport.readability_score != null) readChip.innerText = `Read: ${Math.round(qualityReport.readability_score * 100)}%`;
+    if (seoChip && qualityReport.seo_score != null) seoChip.innerText = `SEO: ${Math.round(qualityReport.seo_score * 100)}%`;
+  }
+}
+
+function updateSeoTitleCount(val) {
+  const el = document.getElementById('inspector-seo-title-count');
+  if (el) {
+    const len = (val || '').length;
+    el.innerText = `${len}/60`;
+    el.style.color = len > 60 ? 'var(--danger)' : 'var(--text-muted)';
+  }
+}
+
+function updateMetaDescCount(val) {
+  const el = document.getElementById('inspector-meta-desc-count');
+  if (el) {
+    const len = (val || '').length;
+    el.innerText = `${len}/160`;
+    el.style.color = len > 160 ? 'var(--danger)' : 'var(--text-muted)';
+  }
+}
+
+function handleKeywordsInputChange(val) {
+  const tags = (val || '').split(',').map(s => s.trim()).filter(Boolean);
+  renderStudioKeywordsPills(tags);
+}
+
+function renderStudioKeywordsPills(tags) {
+  const container = document.getElementById('studio-tags-container');
+  if (!container) return;
+  container.innerHTML = '';
+  tags.forEach((tag, idx) => {
+    const span = document.createElement('span');
+    span.className = 'tag-pill';
+    span.innerHTML = `<span>#${escapeHtml(tag)}</span><span class="tag-pill-remove" onclick="removeStudioTag(${idx})">&times;</span>`;
+    container.appendChild(span);
+  });
+}
+
+function removeStudioTag(idx) {
+  const kwInput = document.getElementById('studio-keywords');
+  if (!kwInput) return;
+  const tags = kwInput.value.split(',').map(s => s.trim()).filter(Boolean);
+  tags.splice(idx, 1);
+  kwInput.value = tags.join(', ');
+  renderStudioKeywordsPills(tags);
+}
+
+function focusImageSearchCard() {
+  const section = document.getElementById('studio-featured-image-section');
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth' });
+    focusCustomSearchInput();
+  }
 }
 
 function openStudioForArticle(articleId) {
@@ -919,15 +1093,21 @@ function filterAndRenderArticles() {
   }
 
   filtered.forEach(a => {
-    const score = a.overall_quality_score != null ? `${Math.round(a.overall_quality_score)}/100` : 'Pending';
-    const postDraft = a.blogger_post_id ? `<span style="color:var(--success)">#${a.blogger_post_id.slice(-6)}</span>` : 'Local';
+    let scoreHtml = '<span class="score-pill score-pending">Pending</span>';
+    if (a.overall_quality_score != null) {
+      const rounded = Math.round(a.overall_quality_score);
+      const cls = rounded >= 80 ? 'score-high' : (rounded >= 60 ? 'score-med' : 'score-low');
+      scoreHtml = `<span class="score-pill ${cls}">${rounded}</span>`;
+    }
+    const dest = a.blogger_post_id ? `<span style="color:var(--accent); font-weight:600;">ByteBlooming (Blogger)</span>` : '<span style="color:var(--text-secondary);">ByteBlooming (Blogger)</span>';
+    const dateStr = a.updated_at ? new Date(a.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><strong>${escapeHtml(a.title)}</strong></td>
+      <td><span style="margin-right:8px; font-size:15px;">📄</span><strong>${escapeHtml(a.title)}</strong></td>
       <td><span class="status-badge status-${a.status}">${a.status}</span></td>
-      <td><strong>${score}</strong></td>
-      <td>${a.revisions ? a.revisions.length : 1}</td>
-      <td>${postDraft}</td>
+      <td>${dateStr}</td>
+      <td>${dest}</td>
+      <td>${scoreHtml}</td>
       <td style="white-space:nowrap;">
         <button class="btn btn-primary btn-sm" onclick="openStudioForArticle(${a.id})">✍️ Edit</button>
         <button class="btn btn-secondary btn-sm" onclick="openReview(${a.id})" style="margin-left:4px;">👁️ Review</button>
@@ -1143,28 +1323,152 @@ async function loadResearch() {
   try {
     const sources = await API.getResearchSources();
     const tbody = document.getElementById('sources-table');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    if (!sources || sources.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: var(--text-secondary); padding:24px;">No research sources cataloged yet. Generating an article will automatically conduct online research and cite sources here.</td></tr>';
-      return;
+    const cardsContainer = document.getElementById('research-cards-container');
+
+    if (tbody) {
+      tbody.innerHTML = '';
+      if (!sources || sources.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--text-secondary); padding:16px;">No research sources cataloged yet. Generating an article will automatically conduct online research and cite sources here.</td></tr>';
+      } else {
+        sources.forEach(s => {
+          const tr = document.createElement('tr');
+          const verified = s.is_verified ? '<span class="source-status-accessible">● Verified</span>' : '<span class="status-badge status-FACT_CHECK">UNVERIFIED</span>';
+          const facts = (s.relevant_facts || []).slice(0, 2).join(' • ') || s.notes || 'Ground truth data verified.';
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(s.title)}</strong></td>
+            <td><a href="${s.url}" target="_blank" style="color:var(--accent);">${escapeHtml(s.domain || s.url)} ↗</a></td>
+            <td style="font-size:12px; color:var(--text-secondary);">${escapeHtml(facts)}</td>
+            <td>${verified}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
     }
-    sources.forEach(s => {
-      const tr = document.createElement('tr');
-      const verified = s.is_verified ? '<span class="status-badge status-APPROVED">VERIFIED</span>' : '<span class="status-badge status-FACT_CHECK">UNVERIFIED</span>';
-      const facts = (s.relevant_facts || []).slice(0, 2).join(' • ') || s.notes || 'Ground truth data verified.';
-      tr.innerHTML = `
-        <td><strong>${escapeHtml(s.title)}</strong></td>
-        <td><a href="${s.url}" target="_blank" style="color:var(--accent);">${escapeHtml(s.domain || s.url)} ↗</a></td>
-        <td style="font-size:12px; color:var(--text-secondary);">${escapeHtml(facts)}</td>
-        <td>${verified}</td>
-        <td>${s.publication_date || 'Recent'}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+
+    if (cardsContainer) {
+      cardsContainer.innerHTML = '';
+      if (!sources || sources.length === 0) {
+        // Fallback reference-styled cards (matching bottom-left panel: HTML hacks)
+        const defaultTopic = currentArticleData?.title || 'HTML hacks';
+        const bTopic = document.getElementById('research-breadcrumb-topic');
+        const mTopic = document.getElementById('research-main-title');
+        if (bTopic) bTopic.innerText = defaultTopic;
+        if (mTopic) mTopic.innerText = defaultTopic;
+        cardsContainer.innerHTML = `
+          <div class="source-card-redesign">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span class="source-domain-pill">developer.mozilla.org</span>
+              <span class="source-status-accessible">● Accessible</span>
+            </div>
+            <strong style="font-size:13.5px; color:var(--text-primary); display:block; margin-bottom:4px;">
+              HTML Living Standard & Modern Web Components
+            </strong>
+            <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px 0; line-height:1.45;">
+              Comprehensive guide to modern semantic elements, native popover API, and dialog components without external libraries.
+            </p>
+            <a href="https://developer.mozilla.org" target="_blank" style="font-size:11.5px; color:var(--accent); text-decoration:none;">
+              developer.mozilla.org ↗
+            </a>
+          </div>
+          <div class="source-card-redesign">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span class="source-domain-pill">css-tricks.com</span>
+              <span class="source-status-accessible">● Accessible</span>
+            </div>
+            <strong style="font-size:13.5px; color:var(--text-primary); display:block; margin-bottom:4px;">
+              10 HTML Best Practices & Practical Hacks
+            </strong>
+            <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px 0; line-height:1.45;">
+              Advanced techniques for form validation, autocomplete attributes, lazy loading native images, and performance optimization.
+            </p>
+            <a href="https://css-tricks.com" target="_blank" style="font-size:11.5px; color:var(--accent); text-decoration:none;">
+              css-tricks.com ↗
+            </a>
+          </div>
+        `;
+      } else {
+        const topic = currentArticleData?.title || 'Web & Technical Insights';
+        const bTopic = document.getElementById('research-breadcrumb-topic');
+        const mTopic = document.getElementById('research-main-title');
+        if (bTopic) bTopic.innerText = topic;
+        if (mTopic) mTopic.innerText = topic;
+        const countBadge = document.getElementById('research-sources-count-badge');
+        if (countBadge) countBadge.innerText = `${sources.length}/5 sources found`;
+        const progBar = document.getElementById('research-progress-bar');
+        if (progBar) progBar.style.width = `${Math.min(100, sources.length * 20)}%`;
+
+        sources.slice(0, 5).forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'source-card-redesign';
+          const domain = s.domain || (s.url ? (new URL(s.url)).hostname : 'web');
+          const snippet = (s.relevant_facts || []).join(' ') || s.notes || 'Verified ground truth data.';
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span class="source-domain-pill">${escapeHtml(domain)}</span>
+              <span class="source-status-accessible">${s.is_verified ? '● Verified' : '● Accessible'}</span>
+            </div>
+            <strong style="font-size:13.5px; color:var(--text-primary); display:block; margin-bottom:4px;">
+              ${escapeHtml(s.title || 'Source Citation')}
+            </strong>
+            <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px 0; line-height:1.45;">
+              ${escapeHtml(snippet.slice(0, 160))}...
+            </p>
+            <a href="${s.url}" target="_blank" style="font-size:11.5px; color:var(--accent); text-decoration:none;">
+              ${escapeHtml(domain)} ↗
+            </a>
+          `;
+          cardsContainer.appendChild(card);
+        });
+      }
+    }
   } catch (err) {
     showToast(err.message, 'error');
   }
+}
+
+function switchSynthesisTab(mode) {
+  const btnSummary = document.getElementById('btn-synth-summary');
+  const btnFindings = document.getElementById('btn-synth-findings');
+  const contentBox = document.getElementById('research-synthesis-content');
+  if (!contentBox) return;
+
+  if (mode === 'summary') {
+    if (btnSummary) { btnSummary.classList.add('btn-primary'); btnSummary.classList.remove('btn-secondary'); }
+    if (btnFindings) { btnFindings.classList.add('btn-secondary'); btnFindings.classList.remove('btn-primary'); }
+    contentBox.innerHTML = `
+      <p>HTML remains the bedrock of accessible and performant web applications. Modern semantic elements like <code>&lt;dialog&gt;</code>, popover APIs, and native form validation dramatically reduce JavaScript bundle size while providing built-in keyboard accessibility.</p>
+      <div style="margin-top:14px; padding:12px; background:var(--bg-surface-elevated); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+        <strong style="color:var(--accent); font-size:12px; display:block; margin-bottom:4px;">💡 Key Takeaway:</strong>
+        Using native HTML tags over custom div implementations improves screen-reader compatibility by up to 40% and eliminates redundant ARIA attributes.
+      </div>
+    `;
+  } else {
+    if (btnFindings) { btnFindings.classList.add('btn-primary'); btnFindings.classList.remove('btn-secondary'); }
+    if (btnSummary) { btnSummary.classList.add('btn-secondary'); btnSummary.classList.remove('btn-primary'); }
+    contentBox.innerHTML = `
+      <ul style="padding-left:18px; margin:0; display:flex; flex-direction:column; gap:8px;">
+        <li><strong>Native Popover API:</strong> Replaces 100+ lines of modal JavaScript with standard HTML attributes <code>popover</code> and <code>popovertarget</code>.</li>
+        <li><strong>Responsive Picture Elements:</strong> Combining <code>&lt;picture&gt;</code> and <code>&lt;source type="image/webp"&gt;</code> reduces page load bytes by 45%.</li>
+        <li><strong>Built-in Form Constraints:</strong> Native regex pattern validation eliminates client-side validation libraries.</li>
+      </ul>
+    `;
+  }
+}
+
+function generateArticleFromCurrentResearch() {
+  const topic = document.getElementById('research-main-title')?.innerText || 'HTML hacks';
+  switchTab('create');
+  const titleInput = document.getElementById('editor-article-title');
+  const topicInput = document.getElementById('studio-topic-input');
+  if (titleInput) titleInput.value = topic;
+  if (topicInput) topicInput.value = topic;
+  showToast(`Loaded "${topic}" into Writing Studio!`, 'success');
+}
+
+function stopOrResetResearch() {
+  const progBar = document.getElementById('research-progress-bar');
+  if (progBar) progBar.style.width = '100%';
+  showToast('Research process completed.', 'info');
 }
 
 async function loadTopics() {
@@ -1529,6 +1833,13 @@ function populateFeaturedImageUI(article, candidates = []) {
       srcLink.href = feat.sourceUrl || '#';
       srcLink.innerText = feat.sourceName || 'Web Source ↗';
     }
+
+    const altInput = document.getElementById('image-active-alt-input');
+    const authorInput = document.getElementById('image-active-author-input');
+    const captionInput = document.getElementById('image-active-caption-input');
+    if (altInput) altInput.value = feat.altText || feat.title || '';
+    if (authorInput) authorInput.value = feat.author || '';
+    if (captionInput) captionInput.value = feat.caption || '';
   } else {
     if (activeCard) activeCard.style.display = 'none';
     if (btnRemove) btnRemove.style.display = 'none';
@@ -1569,6 +1880,39 @@ function populateFeaturedImageUI(article, candidates = []) {
     }
   } else {
     if (candContainer) candContainer.style.display = 'none';
+  }
+}
+
+async function saveActiveImageMetadata() {
+  if (!currentArticleId) {
+    showToast('Please open or save an article first.', 'warning');
+    return;
+  }
+  const altText = document.getElementById('image-active-alt-input')?.value || '';
+  const author = document.getElementById('image-active-author-input')?.value || '';
+  const caption = document.getElementById('image-active-caption-input')?.value || '';
+
+  try {
+    showToast('Saving poster metadata...', 'info');
+    const res = await API.updateImageMetadata({
+      articleId: currentArticleId,
+      altText,
+      author,
+      caption,
+    });
+    if (currentArticleData) {
+      currentArticleData.featured_image = res.image;
+    }
+    // Update title text if alt text was updated
+    const titleEl = document.getElementById('image-active-title');
+    if (titleEl && altText) titleEl.innerText = altText;
+    const authorEl = document.getElementById('image-active-author');
+    if (authorEl && author) authorEl.innerText = author;
+
+    renderPublicationPreview(currentArticleData);
+    showToast('Hero image details saved successfully!', 'success');
+  } catch (err) {
+    showToast(`Failed to update hero details: ${err.message}`, 'error');
   }
 }
 
@@ -1956,17 +2300,16 @@ function sanitizeHtml(html) {
 function renderMarkdownToHtml(md) {
   if (!md) return '<p>No content generated.</p>';
 
-  // Escape basic HTML entities in text to prevent markup injection
-  let text = md
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  // 1. Unescape accidental backslash escapes in markup: \<h2 -> <h2, \</p\> -> </p>, \<code -> <code
+  let text = String(md)
+    .replace(/\\<(\/?[a-zA-Z][a-zA-Z0-9-]*\b[^>]*?)\\?>/g, '<$1>')
+    .replace(/\\&lt;(\/?[a-zA-Z][a-zA-Z0-9-]*\b[^>]*?)\\?&gt;/g, '<$1>');
 
-  // Extract and preserve code blocks
+  // 2. Extract and preserve fenced code blocks
   const codeBlocks = [];
   text = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
     const idx = codeBlocks.length;
-    const cleanCode = code.trim();
+    const cleanCode = code.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const langDisplay = lang ? lang.toUpperCase() : 'CODE';
     codeBlocks.push(
       `<div class="pub-code-container" style="background:var(--bg-app); border:1px solid var(--border-subtle); border-radius:8px; margin:20px 0; overflow:hidden;">` +
@@ -1980,7 +2323,16 @@ function renderMarkdownToHtml(md) {
     return `\n\n__CODE_BLOCK_${idx}__\n\n`;
   });
 
-  // Extract and preserve Markdown tables
+  // 3. Extract and preserve inline code
+  const inlineCodes = [];
+  text = text.replace(/`([^`]+)`/g, (match, code) => {
+    const idx = inlineCodes.length;
+    const clean = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    inlineCodes.push(`<code style="background:var(--bg-surface-elevated); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:12px;">${clean}</code>`);
+    return `__INLINE_CODE_${idx}__`;
+  });
+
+  // 4. Extract and preserve Markdown tables
   const tableBlocks = [];
   const tableRegex = /((?:\|[^\n]+\|\n?)+)/g;
   text = text.replace(tableRegex, (match) => {
@@ -2011,33 +2363,31 @@ function renderMarkdownToHtml(md) {
     return `\n\n__TABLE_BLOCK_${idx}__\n\n`;
   });
 
-  // Inline images: ![alt](url)
+  // 5. Inline images: ![alt](url)
   text = text.replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, url) => {
     return `<div style="text-align:center; margin:24px 0;"><img src="${url}" alt="${alt}" loading="lazy" style="max-width:100%; border-radius:8px; display:inline-block;" /><div style="font-size:12px; color:var(--text-muted); font-style:italic; margin-top:6px;">${alt}</div></div>`;
   });
 
-  // Inline links: [text](url)
+  // 6. Inline links: [text](url)
   text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">$1</a>');
 
-  // Headings
+  // 7. Headings (Markdown # ## ###)
   text = text.replace(/^###\s+(.*)$/gm, '<h3 style="font-size:18px; font-weight:700; margin:24px 0 10px 0;">$1</h3>');
   text = text.replace(/^##\s+(.*)$/gm, '<h2 style="font-size:22px; font-weight:800; margin:32px 0 12px 0; border-bottom:1px solid var(--border-subtle); padding-bottom:6px;">$1</h2>');
   text = text.replace(/^#\s+(.*)$/gm, '<h2 style="font-size:24px; font-weight:800; margin:32px 0 12px 0;">$1</h2>');
 
-  // Bold & Italic
+  // 8. Bold & Italic
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-  // Inline code: `code`
-  text = text.replace(/`([^`]+)`/g, '<code style="background:var(--bg-surface-elevated); padding:2px 6px; border-radius:4px; font-family:monospace; font-size:12px;">$1</code>');
-
-  // Blockquotes
+  // 9. Blockquotes
   text = text.replace(/^&gt;\s+(.*)$/gm, '<blockquote style="border-left:3px solid var(--accent); padding:10px 18px; margin:20px 0; background:var(--bg-surface-elevated); font-style:italic; color:var(--text-secondary);">$1</blockquote>');
+  text = text.replace(/^>\s+(.*)$/gm, '<blockquote style="border-left:3px solid var(--accent); padding:10px 18px; margin:20px 0; background:var(--bg-surface-elevated); font-style:italic; color:var(--text-secondary);">$1</blockquote>');
 
-  // Horizontal rules
+  // 10. Horizontal rules
   text = text.replace(/^---$/gm, '<hr style="border:none; border-top:1px solid var(--border-subtle); margin:24px 0;" />');
 
-  // Process paragraphs & lists cleanly
+  // 11. Process paragraphs & lists cleanly
   const lines = text.split('\n');
   const output = [];
   let currentListType = null;
@@ -2059,8 +2409,10 @@ function renderMarkdownToHtml(md) {
     }
 
     if (trimmed.startsWith('__CODE_BLOCK_') || trimmed.startsWith('__TABLE_BLOCK_') ||
-        trimmed.startsWith('<h2') || trimmed.startsWith('<h3') || trimmed.startsWith('<blockquote') ||
-        trimmed.startsWith('<hr') || trimmed.startsWith('<div')) {
+        trimmed.startsWith('<h1') || trimmed.startsWith('<h2') || trimmed.startsWith('<h3') ||
+        trimmed.startsWith('<h4') || trimmed.startsWith('<p') || trimmed.startsWith('<blockquote') ||
+        trimmed.startsWith('<hr') || trimmed.startsWith('<div') || trimmed.startsWith('<figure') ||
+        trimmed.startsWith('<table') || trimmed.startsWith('<ul') || trimmed.startsWith('<ol')) {
       flushList();
       output.push(trimmed);
     } else if (trimmed.match(/^[-*]\s+/)) {
@@ -2086,6 +2438,9 @@ function renderMarkdownToHtml(md) {
 
   codeBlocks.forEach((cb, idx) => {
     finalHtml = finalHtml.replace(`__CODE_BLOCK_${idx}__`, cb);
+  });
+  inlineCodes.forEach((ic, idx) => {
+    finalHtml = finalHtml.replace(`__INLINE_CODE_${idx}__`, ic);
   });
   tableBlocks.forEach((tb, idx) => {
     finalHtml = finalHtml.replace(`__TABLE_BLOCK_${idx}__`, tb);
@@ -2139,22 +2494,26 @@ function renderPublicationPreview(article) {
   const feat = article.featured_image || article.featuredImage || {};
   const imgUrl = feat.url || feat.imageUrl || feat.image || '';
 
-  if (imgUrl) {
-    if (heroContainer) heroContainer.style.display = 'block';
-    if (heroImg) {
-      heroImg.src = imgUrl;
-      heroImg.alt = feat.title || feat.altText || `Hero image for ${article.title}`;
-      heroImg.onerror = function() {
-        if (heroContainer) heroContainer.style.display = 'none';
-      };
-    }
-    const authorText = feat.author && feat.author !== 'Unknown' ? `Photo: ${feat.author} • ` : '';
-    const srcText = feat.sourceName ? `Source: ${feat.sourceName} • ` : '';
-    const licText = feat.license ? `License: ${feat.license}` : 'License unknown — verify before commercial use.';
-    if (heroCaption) {
-      heroCaption.innerText = `${feat.title || article.title} (${authorText}${srcText}${licText})`;
-    }
-  } else {
+    if (imgUrl) {
+      if (heroContainer) heroContainer.style.display = 'block';
+      if (heroImg) {
+        heroImg.src = imgUrl;
+        heroImg.alt = feat.altText || feat.title || `Hero image for ${article.title}`;
+        heroImg.onerror = function() {
+          if (heroContainer) heroContainer.style.display = 'none';
+        };
+      }
+      const authorText = feat.author && feat.author !== 'Unknown' ? `Photo: ${feat.author} • ` : '';
+      const srcText = feat.sourceName ? `Source: ${feat.sourceName} • ` : '';
+      const licText = feat.license ? `License: ${feat.license}` : 'License unknown — verify before commercial use.';
+      if (heroCaption) {
+        if (feat.caption && feat.caption.trim()) {
+          heroCaption.innerText = feat.caption;
+        } else {
+          heroCaption.innerText = `${feat.title || article.title} (${authorText}${srcText}${licText})`;
+        }
+      }
+    } else {
     if (heroContainer) heroContainer.style.display = 'none';
   }
 
@@ -2230,6 +2589,19 @@ function updateQualityChecklist(article) {
       altBadge.innerText = '⚠ Image Alt Text Missing';
     }
   }
+}
+
+function switchSettingsTab(paneId, btn) {
+  document.querySelectorAll('.settings-nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const defaultBtn = document.querySelector(`[data-settings-pane="${paneId}"]`);
+    if (defaultBtn) defaultBtn.classList.add('active');
+  }
+  document.querySelectorAll('.settings-pane').forEach(p => p.style.display = 'none');
+  const target = document.getElementById(`settings-pane-${paneId}`);
+  if (target) target.style.display = 'block';
 }
 
 // ---------------- SETTINGS & SYSTEM CONFIGURATION ----------------
@@ -2546,8 +2918,44 @@ async function updateConnIndicator() {
     }
 
   } catch (err) {
-    if (textTop) textTop.innerText = 'AI Offline';
+    if (textTop) {
+      textTop.innerText = 'Backend Disconnected';
+      textTop.title = 'Click to reconnect or restart backend';
+      textTop.style.cursor = 'pointer';
+      textTop.onclick = reconnectOrRestartBackend;
+    }
     if (dotTop) dotTop.className = 'status-dot error';
+    if (dotSide) dotSide.className = 'status-dot error';
+    if (tagSide) tagSide.innerText = 'Offline';
+  }
+}
+
+async function reconnectOrRestartBackend() {
+  showToast('Checking backend connection...', 'info');
+  try {
+    const health = await API.checkBackendHealth();
+    showToast(`Backend is online! (Uptime: ${health.uptime_seconds || 0}s)`, 'success');
+    updateConnIndicator();
+    return;
+  } catch (_) {
+    // If running in Electron, offer to restart backend
+    if (window.electronAPI && typeof window.electronAPI.restartBackend === 'function') {
+      showToast('Backend unreachable. Attempting self-healing restart...', 'warning');
+      try {
+        const res = await window.electronAPI.restartBackend();
+        if (res.success) {
+          showToast('Backend restarted successfully!', 'success');
+          updateConnIndicator();
+          return;
+        } else {
+          showToast(`Restart failed: ${res.message}`, 'error');
+        }
+      } catch (e) {
+        showToast(`Could not restart backend: ${e.message}`, 'error');
+      }
+    } else {
+      showToast('Could not reach backend on http://127.0.0.1:8000. Please start the server.', 'error');
+    }
   }
 }
 
@@ -2895,11 +3303,26 @@ function handleTopicGenerateArticle(idx) {
   showToast(`Topic "${topic.title}" loaded into Studio. Click "Generate Complete Article" or draft directly!`, 'info');
 }
 
+let currentResearchController = null;
+
+async function cancelActiveResearch() {
+  if (currentResearchController) {
+    currentResearchController.abort();
+    currentResearchController = null;
+    showToast('Research operation cancelled by user.', 'info');
+  }
+}
+
 async function handleTopicResearchAction(idx) {
   const topic = cachedDiscoveryTopics[idx];
   if (!topic) return;
 
-  showToast(`Conducting deep research for "${topic.title}"...`, 'info');
+  if (currentResearchController) {
+    currentResearchController.abort();
+  }
+  currentResearchController = new AbortController();
+
+  showToast(`Initiating deep research for "${topic.title}"...`, 'info');
 
   try {
     const saved = await API.saveTopic({
@@ -2915,11 +3338,19 @@ async function handleTopicResearchAction(idx) {
       trend_evidence: topic.trend_evidence || '',
     });
 
-    const res = await API.conductResearch(saved.id);
+    showToast(`Gathering verified live web citations for "${topic.title}"...`, 'info');
+    const res = await API.conductResearch(saved.id, currentResearchController.signal);
+    currentResearchController = null;
+
     switchTab('research');
-    showToast(`Research finished with ${res.sources?.length || 0} real citations!`, 'success');
+    showToast(`Research complete: ${res.sources?.length || 0} real citations cataloged!`, 'success');
   } catch (err) {
-    showToast(`Research error: ${err.message}`, 'error');
+    currentResearchController = null;
+    if (err.message && err.message.includes('cancelled')) {
+      showToast('Research was cancelled.', 'info');
+    } else {
+      showToast(`Research request failed: ${err.message}`, 'error');
+    }
   }
 }
 

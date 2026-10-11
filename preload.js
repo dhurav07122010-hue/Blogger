@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   maximizeWindow: () => ipcRenderer.send('window-maximize'),
   closeWindow: () => ipcRenderer.send('window-close'),
   checkBackendHealth: () => ipcRenderer.invoke('check-backend-health'),
+  restartBackend: () => ipcRenderer.invoke('restart-backend'),
 });

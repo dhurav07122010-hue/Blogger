@@ -11,52 +11,70 @@ const getApiBase = () => {
   return 'http://127.0.0.1:8000';
 };
 
-const safeFetch = async (url, options = {}, timeoutMs = 12000) => {
+const safeFetch = async (url, options = {}, timeoutMs = 30000) => {
   const fullUrl = url.startsWith('http') ? url : `${getApiBase()}${url}`;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort('timeout'), timeoutMs);
+
+  // If caller provided their own signal, listen to it
+  if (options.signal) {
+    options.signal.addEventListener('abort', () => {
+      controller.abort(options.signal.reason || 'user_cancelled');
+    });
+  }
 
   try {
+    const fetchOptions = { ...options };
+    delete fetchOptions.signal; // use combined controller signal
     const res = await fetch(fullUrl, {
-      ...options,
+      ...fetchOptions,
       signal: controller.signal,
     });
     clearTimeout(timer);
     return res;
   } catch (err) {
     clearTimeout(timer);
-    if (err.name === 'AbortError') {
-      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+    if (err.name === 'AbortError' || controller.signal.aborted) {
+      if (controller.signal.reason === 'user_cancelled') {
+        throw new Error('Operation cancelled by user.');
+      }
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s. The operation may still be processing in the background.`);
     }
     // Enhance browser "Failed to fetch" message
     if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
-      throw new Error('Could not connect to backend service. Please ensure the server is running.');
+      throw new Error('Could not connect to backend service. Please ensure the server is running on port 8000.');
     }
     throw err;
   }
 };
 
 const API = {
+  async checkBackendHealth() {
+    const res = await safeFetch('/api/health', {}, 6000);
+    if (!res.ok) throw new Error('Backend health check failed');
+    return res.json();
+  },
+
   async getDashboardStats() {
-    const res = await safeFetch('/api/dashboard/stats');
+    const res = await safeFetch('/api/dashboard/stats', {}, 10000);
     if (!res.ok) throw new Error('Failed to load stats');
     return res.json();
   },
 
   async getTopics() {
-    const res = await safeFetch('/api/topics');
+    const res = await safeFetch('/api/topics', {}, 12000);
     if (!res.ok) throw new Error('Failed to load topics');
     return res.json();
   },
 
   async discoverTrendingTopics(country = 'IN', category = 'Technology', limit = 12) {
-    const res = await safeFetch(`/api/topics/discover/trending?country=${encodeURIComponent(country)}&category=${encodeURIComponent(category)}&limit=${limit}`, {}, 15000);
+    const res = await safeFetch(`/api/topics/discover/trending?country=${encodeURIComponent(country)}&category=${encodeURIComponent(category)}&limit=${limit}`, {}, 30000);
     if (!res.ok) throw new Error('Failed to discover trending topics');
     return res.json();
   },
 
   async discoverRandomTopics(mode = 'random', category = 'Technology', difficulty = 'All', audience = 'Developers & Tech Enthusiasts', country = 'IN', limit = 12) {
-    const res = await safeFetch(`/api/topics/discover/random?mode=${encodeURIComponent(mode)}&category=${encodeURIComponent(category)}&difficulty=${encodeURIComponent(difficulty)}&audience=${encodeURIComponent(audience)}&country=${encodeURIComponent(country)}&limit=${limit}`, {}, 20000);
+    const res = await safeFetch(`/api/topics/discover/random?mode=${encodeURIComponent(mode)}&category=${encodeURIComponent(category)}&difficulty=${encodeURIComponent(difficulty)}&audience=${encodeURIComponent(audience)}&country=${encodeURIComponent(country)}&limit=${limit}`, {}, 35000);
     if (!res.ok) throw new Error('Failed to discover topics');
     return res.json();
   },
@@ -66,19 +84,24 @@ const API = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    });
+    }, 15000);
     if (!res.ok) throw new Error('Failed to create topic');
     return res.json();
   },
 
+  // Alias for createTopic used throughout frontend
+  async saveTopic(data) {
+    return this.createTopic(data);
+  },
+
   async deleteTopic(id) {
-    const res = await safeFetch(`/api/topics/${id}`, { method: 'DELETE' });
+    const res = await safeFetch(`/api/topics/${id}`, { method: 'DELETE' }, 10000);
     if (!res.ok) throw new Error('Failed to delete topic');
     return res.json();
   },
 
   async seedDemoTopic() {
-    const res = await safeFetch('/api/topics/seed-sample', { method: 'POST' });
+    const res = await safeFetch('/api/topics/seed-sample', { method: 'POST' }, 15000);
     if (!res.ok) throw new Error('Failed to seed demo topic');
     return res.json();
   },
@@ -87,20 +110,31 @@ const API = {
     let url = '/api/research/sources?';
     if (topicId) url += `topic_id=${topicId}&`;
     if (articleId) url += `article_id=${articleId}&`;
-    const res = await safeFetch(url);
+    const res = await safeFetch(url, {}, 12000);
     if (!res.ok) throw new Error('Failed to load research sources');
     return res.json();
   },
 
-  async runResearchForTopic(topicId) {
-    const res = await safeFetch(`/api/research/run-for-topic/${topicId}`, { method: 'POST' });
-    if (!res.ok) throw new Error('Failed to run research');
+  async runResearchForTopic(topicId, signal = null) {
+    const res = await safeFetch(`/api/research/run-for-topic/${topicId}`, {
+      method: 'POST',
+      signal: signal,
+    }, 120000); // 2 minutes timeout for live web research & synthesis
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Failed to complete research investigation.');
+    }
     return res.json();
+  },
+
+  // Alias for runResearchForTopic
+  async conductResearch(topicId, signal = null) {
+    return this.runResearchForTopic(topicId, signal);
   },
 
   async getArticles(status = null) {
     const url = status ? `/api/articles?status=${encodeURIComponent(status)}` : '/api/articles';
-    const res = await safeFetch(url);
+    const res = await safeFetch(url, {}, 15000);
     if (!res.ok) throw new Error('Failed to load articles');
     return res.json();
   },
@@ -320,6 +354,17 @@ const API = {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || data.message || 'Failed to set custom image URL');
+    return data;
+  },
+
+  async updateImageMetadata(payload) {
+    const res = await safeFetch('/api/images/update-metadata', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || data.message || 'Failed to update image metadata');
     return data;
   },
 

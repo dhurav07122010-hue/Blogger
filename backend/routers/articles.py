@@ -34,6 +34,23 @@ def list_articles(
     return query.order_by(Article.id.desc()).all()
 
 
+@router.post("", response_model=ArticleRead)
+def create_article(req: ArticleCreate, db: Session = Depends(get_db)):
+    """Create a new article draft manually."""
+    article = Article(
+        title=req.title,
+        content=req.content or "",
+        summary=req.summary or "",
+        status=ArticleStatus.DRAFT,
+        topic_id=req.topic_id,
+        keywords=req.keywords or [],
+    )
+    db.add(article)
+    db.commit()
+    db.refresh(article)
+    return article
+
+
 @router.post("/start-workflow", response_model=ArticleRead)
 def start_pipeline_workflow(req: StartWorkflowRequest, db: Session = Depends(get_db)):
     """
@@ -119,6 +136,14 @@ def update_article_content(article_id: int, req: ArticleUpdate, db: Session = De
     if req.summary is not None:
         article.summary = req.summary
     if req.status is not None:
+        # State machine safety: Prevent general PUT from directly bypassing approval workflow
+        # Only human decision endpoint can transition to APPROVED, and only Blogger router can transition to PUBLISHED
+        protected_statuses = (ArticleStatus.APPROVED, ArticleStatus.PUBLISHED)
+        if req.status in protected_statuses and req.status != article.status:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Status '{req.status}' cannot be set directly via general update. Articles must undergo the Quality Gate and Human Approval workflow.",
+            )
         article.status = req.status
     if req.research_notes is not None:
         article.research_notes = req.research_notes

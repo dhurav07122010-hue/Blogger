@@ -61,12 +61,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Enable CORS for local development
+# Restrict CORS to legitimate local frontend origins
+ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -133,15 +140,33 @@ def serve_index():
     )
 
 
+import time
+SERVER_START_TIME = time.time()
+
 @app.get("/api/health")
 def health_check():
-    """Health check endpoint."""
+    """Health check endpoint with live database probe and uptime."""
+    db_status = "connected"
+    try:
+        from backend.database import SessionLocal
+        from sqlalchemy import text
+        with SessionLocal() as session:
+            session.execute(text("SELECT 1"))
+    except Exception as e:
+        db_status = f"unhealthy: {str(e)[:80]}"
+
+    blogger_token_exists = (settings.DATA_DIR / "blogger_token.json").exists() or (settings.BASE_DIR / "data" / "blogger_token.json").exists()
+
     return {
-        "status": "healthy",
+        "status": "healthy" if "unhealthy" not in db_status else "degraded",
+        "uptime_seconds": round(time.time() - SERVER_START_TIME, 1),
         "demo_mode": settings.DEMO_MODE,
-        "database": "connected",
+        "database": db_status,
         "auto_publish": settings.AUTO_PUBLISH,
         "quality_threshold": settings.QUALITY_THRESHOLD,
+        "ai_generation_mode": settings.AI_GENERATION_MODE,
+        "search_provider": settings.SEARCH_PROVIDER,
+        "blogger_token_detected": blogger_token_exists,
     }
 
 

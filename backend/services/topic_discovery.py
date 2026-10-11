@@ -110,11 +110,26 @@ class TopicDiscoveryService:
         except Exception as e:
             logger.warning(f"Failed to fetch Google Trends RSS: {e}")
 
-        # 2. Fetch from Google News Technology RSS
-        tech_news_url = f"https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-{geo}&gl={geo}&ceid={geo}:en"
+        # 2. Fetch from Google News RSS matching category
+        cat_lower = (category or "technology").lower()
+        if "ai" in cat_lower or "machine learning" in cat_lower or "web" in cat_lower or "software" in cat_lower or "tech" in cat_lower or "cloud" in cat_lower:
+            news_feed_url = f"https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-{geo}&gl={geo}&ceid={geo}:en"
+            feed_label = "Google News Technology"
+        elif "business" in cat_lower or "finance" in cat_lower:
+            news_feed_url = f"https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-{geo}&gl={geo}&ceid={geo}:en"
+            feed_label = "Google News Business"
+        elif "science" in cat_lower:
+            news_feed_url = f"https://news.google.com/rss/headlines/section/topic/SCIENCE?hl=en-{geo}&gl={geo}&ceid={geo}:en"
+            feed_label = "Google News Science"
+        else:
+            # Query specific search feed
+            encoded_cat = urllib.parse.quote(category)
+            news_feed_url = f"https://news.google.com/rss/search?q={encoded_cat}&hl=en-{geo}&gl={geo}&ceid={geo}:en"
+            feed_label = f"Google News Search ({category})"
+
         try:
             with httpx.Client(headers=self.headers, timeout=self.timeout, follow_redirects=True) as client:
-                resp = client.get(tech_news_url)
+                resp = client.get(news_feed_url)
                 if resp.status_code == 200:
                     root = ET.fromstring(resp.text)
                     items = root.findall(".//item")
@@ -127,7 +142,7 @@ class TopicDiscoveryService:
                         # Clean publisher suffix e.g. "Title - TechCrunch"
                         title_parts = clean_title.rsplit(" - ", 1)
                         headline = title_parts[0]
-                        publisher = title_parts[1] if len(title_parts) > 1 else "Google News Tech"
+                        publisher = title_parts[1] if len(title_parts) > 1 else feed_label
                         pub_date = item.findtext("pubDate") or ""
                         link = item.findtext("link") or "https://news.google.com"
 
@@ -135,10 +150,10 @@ class TopicDiscoveryService:
                         discovered.append({
                             "title": headline,
                             "explanation": f"Reported by {publisher}. Current major headline in {category}.",
-                            "source": f"Google News Tech ({publisher})",
+                            "source": f"{feed_label} ({publisher})",
                             "source_url": link,
-                            "publication_date": pub_date[:16] if pub_date else "Current",
-                            "trend_evidence": "Top Technology Headline",
+                            "publication_date": pub_date[:16] if pub_date else "Recent",
+                            "trend_evidence": f"Top Headline ({category})",
                             "search_intent": intent,
                             "estimated_difficulty": "Intermediate (Estimate)",
                             "audience_fit": "High",
@@ -271,36 +286,36 @@ RULES:
         return filtered
 
     def _fallback_trending_topics(self, country: str, category: str, limit: int) -> List[Dict[str, Any]]:
-        """Reliable offline / fallback trending tech topics."""
+        """Reliable offline fallback topics when internet feeds are unreachable."""
         return [
             {
                 "title": "Modern AI Web Agents: How Browser Automation and LLMs Converge in 2026",
                 "explanation": "Explores how autonomous browser agents and multi-agent coordination automate complex web tasks.",
-                "source": "Tech Trends Industry Review",
+                "source": "Tech Architecture Review (Offline Fallback)",
                 "source_url": "https://developers.google.com",
-                "publication_date": "Current",
-                "trend_evidence": "High Search Interest Surge",
+                "publication_date": "Undated (Offline Suggestion)",
+                "trend_evidence": "Curated Editorial Suggestion (Offline Mode)",
                 "search_intent": "Informational",
                 "estimated_difficulty": "Intermediate (Estimate)",
                 "audience_fit": "High",
                 "article_potential": "Trending Tech Topic",
                 "category": category,
-                "discovery_mode": "trending",
+                "discovery_mode": "offline_fallback",
                 "country_region": country,
             },
             {
                 "title": "WebAssembly in Production: Performance Benchmarks and Real-World Trade-Offs",
                 "explanation": "Examines client-side high performance compute with Wasm across major browsers.",
-                "source": "W3C Web Standards Review",
+                "source": "W3C Web Standards Review (Offline Fallback)",
                 "source_url": "https://webassembly.org",
-                "publication_date": "Current",
-                "trend_evidence": "Active Developer Discussions",
+                "publication_date": "Undated (Offline Suggestion)",
+                "trend_evidence": "Curated Editorial Suggestion (Offline Mode)",
                 "search_intent": "Informational",
                 "estimated_difficulty": "Advanced (Estimate)",
                 "audience_fit": "High",
                 "article_potential": "Strong Technical Readership",
                 "category": category,
-                "discovery_mode": "trending",
+                "discovery_mode": "offline_fallback",
                 "country_region": country,
             },
             {

@@ -49,7 +49,6 @@
       "preload.js",
       "frontend/**/*",
       "backend/**/*",
-      ".env",
       ".env.example",
       "requirements.txt"
     ]
